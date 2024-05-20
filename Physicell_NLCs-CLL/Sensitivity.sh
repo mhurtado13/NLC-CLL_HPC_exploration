@@ -7,8 +7,8 @@
 #SBATCH --partition=unlimitq
 #SBATCH --mail-type=FAIL,BEGIN,END
 #SBATCH --mail-user=marcelo.hurtado@inserm.fr
-#SBATCH -o /home/mhurtado/work/ABM_NLC-CLL_cluster/logs/Sensitivity/%x.o
-#SBATCH -e /home/mhurtado/work/ABM_NLC-CLL_cluster/logs/Sensitivity/%x.e
+#SBATCH -o /home/mhurtado/work/NLC-CLL_HPC_exploration/logs/Sensitivity/%x.o
+#SBATCH -e /home/mhurtado/work/NLC-CLL_HPC_exploration/logs/Sensitivity/%x.e
 
 # Define the number of samples to generate for the Sobol analysis
 NUM_SAMPLES=128 #Sobol: N*(2D + 2) 3328 simulations

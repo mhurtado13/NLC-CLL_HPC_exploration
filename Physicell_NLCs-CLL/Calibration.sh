@@ -7,8 +7,8 @@
 #SBATCH --partition=unlimitq
 #SBATCH --mail-type=FAIL,BEGIN,END
 #SBATCH --mail-user=marcelo.hurtado@inserm.fr
-#SBATCH -o /home/mhurtado/work/ABM_NLC-CLL_cluster/logs/Calibration/%x.o
-#SBATCH -e /home/mhurtado/work/ABM_NLC-CLL_cluster/logs/Calibration/%x.e
+#SBATCH -o /home/mhurtado/work/NLC-CLL_HPC_exploration/logs/Calibration/%x.o
+#SBATCH -e /home/mhurtado/work/NLC-CLL_HPC_exploration/logs/Calibration/%x.e
 
 # Define the number of tasks running in parallel
 NUM_TASKS=120
