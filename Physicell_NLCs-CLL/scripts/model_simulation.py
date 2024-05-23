@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import subprocess
 import pandas as pd
 import os
+import shutil
 import random
 from collect_data import collect
 from merge_data import merge
@@ -110,5 +111,8 @@ def run_model(input_file_path, replicates, node, *args):
         concentration = pd.Series([0] * 10)
         print("Physicell simulation for task " + str(thread) + " with parameters " + str(values) + " in node " + str(node) + " did not run succesfully... completing with 0s")
 
+    #Remove output directory to create a new one if same thread will be used with another config file
+    shutil.rmtree(output_folder)
 
     return viability, concentration, errors
+os.rm
