@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=NLC-CLL-exploration
-#SBATCH --nodes=1
+#SBATCH --nodes=2
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=100
 #SBATCH --mem=256G
