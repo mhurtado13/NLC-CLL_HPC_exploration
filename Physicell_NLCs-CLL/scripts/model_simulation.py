@@ -6,21 +6,32 @@ import random
 from collect_data import collect
 from merge_data import merge
 
-def run_model(input_file_path, replicates, *args):                
+def run_model(input_file_path, replicates, node, *args):                
     
     thread = args[0] #Extract in which thread we are
     values = args[1:]
     errors = []
     tree = ET.parse(input_file_path) #Load xml file
     root = tree.getroot()
-    print("Running simulation with parameters " + str(values) + "in node ", str(thread))
-    output_folder = "output_" + str(thread)
+    print("Running simulation with parameters " + str(values) + "in task number " + str(thread) + "using node " + str(node))
+    
+    #Creating folder for each node
+    output_node = "output_node_" + str(node)
+    os.makedirs(output_node, exist_ok=True)
+    
+    #Creating subfolder for each thread inside each node
+    output_folder = output_node + "/output_" + str(thread)
+    os.makedirs(output_folder, exist_ok=True)
+
+    #Parsing output folder in xml file 
     param_element = root.find(".//save/folder") #Find the random seed in XML file
     param_element.text = output_folder
 
-    xml_file = "config/configuration_file_" + str(thread) + ".xml"
+    #Creating subfolder for each node inside config
+    config_node = "config/config_node_" + str(node)
+    os.makedirs(config_node, exist_ok=True)
 
-    os.makedirs(output_folder, exist_ok=True)
+    xml_file = config_node + "/configuration_file_" + str(thread) + ".xml"
 
     param_behaviors = {'cancer':{'uptake_rate': 0, 'speed': 1, 'transformation_rate': 2},
                     'monocytes':{'speed': 3, 'dead_phagocytosis_rate': 4},
@@ -79,14 +90,13 @@ def run_model(input_file_path, replicates, *args):
             # Check that the Physicell ran successfully
             if proc.returncode != 0:
                 print("Error running Physicell")
-                print("Physicell error for parameters: " + str(values))
                 print(stderr)
                 errors.append(values)
                 terminate = True
                 break #exit loop to avoid running all replicates if there is an error in simulation 
 
             if terminate == False:
-                print("Collecting data in node " + str(thread))
+                print("Collecting data in task " + str(thread))
                 res = collect(output_folder, xml_file) #We collect the data at each iteration
                 data = pd.concat([res, data], axis=1)
         
@@ -94,11 +104,11 @@ def run_model(input_file_path, replicates, *args):
           
     if terminate == False:
         viability, concentration = merge(data) #Merge data of replicates 
-        print("Physicell simulation for node " + str(thread) + " with parameters " + str(values) + " completed succesfully! :)")
+        print("Physicell simulation for task " + str(thread) + " with parameters " + str(values) + "in node " + str(node) + " completed succesfully! :)")
     else:
         viability = pd.Series([0] * 10)
         concentration = pd.Series([0] * 10)
-        print("Physicell simulation for node " + str(thread) + " with parameters " + str(values) + " did not run succesfully... completing with 0s")
+        print("Physicell simulation for task " + str(thread) + " with parameters " + str(values) + "in node " + str(node) + " did not run succesfully... completing with 0s")
 
 
     return viability, concentration, errors
