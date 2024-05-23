@@ -11,12 +11,12 @@ def run_model(input_file_path, replicates, node, *args):
     thread = args[0] #Extract in which thread we are
     values = args[1:]
     errors = []
-    tree = ET.parse(input_file_path) #Load xml file
+    tree = ET.parse(input_file_path) #Load original xml file
     root = tree.getroot()
-    print("Running simulation with parameters " + str(values) + "in task number " + str(thread) + "using node " + str(node))
+    print("Running simulation with parameters " + str(values) + " in task number " + str(thread) + " using node " + str(node))
     
     #Creating folder for each node
-    output_node = "output_node_" + str(node)
+    output_node = "output/output_node_" + str(node)
     os.makedirs(output_node, exist_ok=True)
     
     #Creating subfolder for each thread inside each node
@@ -104,11 +104,11 @@ def run_model(input_file_path, replicates, node, *args):
           
     if terminate == False:
         viability, concentration = merge(data) #Merge data of replicates 
-        print("Physicell simulation for task " + str(thread) + " with parameters " + str(values) + "in node " + str(node) + " completed succesfully! :)")
+        print("Physicell simulation for task " + str(thread) + " with parameters " + str(values) + " in node " + str(node) + " completed succesfully! :)")
     else:
         viability = pd.Series([0] * 10)
         concentration = pd.Series([0] * 10)
-        print("Physicell simulation for task " + str(thread) + " with parameters " + str(values) + "in node " + str(node) + " did not run succesfully... completing with 0s")
+        print("Physicell simulation for task " + str(thread) + " with parameters " + str(values) + " in node " + str(node) + " did not run succesfully... completing with 0s")
 
 
     return viability, concentration, errors

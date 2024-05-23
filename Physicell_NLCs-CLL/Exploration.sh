@@ -14,7 +14,7 @@
 #python scripts/param_exploration.py $NUM_NODES $NUM_TASKS 
 
 #Define file of samples to run exploration
-FILE="data_output/Parameter_exploration/Samples_1.csv"
+FILE=data_output/Parameter_exploration/Samples_1.csv
 #Define the number of tasks running in parallel
 NUM_TASKS=8
 #Define the number replicates for bootstrapping 

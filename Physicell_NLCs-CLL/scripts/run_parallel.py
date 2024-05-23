@@ -12,7 +12,7 @@ n_node = int(sys.argv[4])
 pool = ThreadPool(num_tasks) 
 results = []
 
-thread_params = pd.read_csv('file_params')
+thread_params = pd.read_csv(file_params)
 thread_params = [tuple(row) for row in thread_params.itertuples(index=False, name=None)]
 params = [(("config/NLC_CLL.xml", n_replicates, n_node) + thread_params[contador]) for contador in range(len(thread_params))]
 res = pool.starmap(run_model, params)
