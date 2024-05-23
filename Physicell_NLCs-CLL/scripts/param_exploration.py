@@ -33,6 +33,7 @@ for parameter in input.keys():
         x.append(tuple(input.values()))
         reset_values(input, default_values)
 
+# 12 * 20 = 240 parameters
 
 #Subspaces for running in different nodes
 rows = int(len(x)/num_nodes)

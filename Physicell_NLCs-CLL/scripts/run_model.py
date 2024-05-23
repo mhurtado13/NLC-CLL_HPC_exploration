@@ -1,5 +1,5 @@
 from multiprocessing import Pool
-from model_simulation import run_model
+from model_simulation import simulate_model
 from multiprocessing.pool import ThreadPool
 import pandas as pd
 import sys
@@ -15,7 +15,7 @@ results = []
 thread_params = pd.read_csv(file_params)
 thread_params = [tuple(row) for row in thread_params.itertuples(index=False, name=None)]
 params = [(("config/NLC_CLL.xml", n_replicates, n_node) + thread_params[contador]) for contador in range(len(thread_params))]
-res = pool.starmap(run_model, params)
+res = pool.starmap(simulate_model, params)
 results.extend(res)
 
 pool.close()

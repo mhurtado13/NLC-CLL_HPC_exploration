@@ -7,7 +7,7 @@ import random
 from collect_data import collect
 from merge_data import merge
 
-def run_model(input_file_path, replicates, node, *args):                
+def simulate_model(input_file_path, replicates, node, *args):                
     
     thread = args[0] #Extract in which thread we are
     values = args[1:]
@@ -115,4 +115,3 @@ def run_model(input_file_path, replicates, node, *args):
     shutil.rmtree(output_folder)
 
     return viability, concentration, errors
-os.rm
