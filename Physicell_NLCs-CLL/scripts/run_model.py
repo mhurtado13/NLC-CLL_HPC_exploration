@@ -14,7 +14,7 @@ results = []
 
 thread_params = pd.read_csv(file_params)
 thread_params = [tuple(row) for row in thread_params.itertuples(index=False, name=None)]
-params = [(("config/NLC_CLL.xml", n_replicates, n_node) + thread_params[contador]) for contador in range(len(thread_params))]
+params = [(("config/NLC_CLL.xml", n_replicates, n_node, contador+1) + thread_params[contador]) for contador in range(len(thread_params))]
 res = pool.starmap(simulate_model, params)
 results.extend(res)
 

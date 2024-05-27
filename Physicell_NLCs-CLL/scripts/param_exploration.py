@@ -5,7 +5,6 @@ import numpy as np
 #Simulations = 12 variables x 20 values x 10 replicates = 2400 simulations
 
 num_nodes = int(sys.argv[1])
-num_tasks = int(sys.argv[2])
 
 input = {'uptake_rate_cancer': 1.0, 'speed_cancer': 1.0, 'transformation_rate_cancer': 5e-5,
                   'speed_monocytes':1.0, 'dead_phagocytosis_rate_monocytes':25e-2, 'speed_macrophages':1.0,
@@ -40,7 +39,6 @@ rows = int(len(x)/num_nodes)
 
 # Loop over the number of output files to generate
 for i in range(num_nodes):
-    thread_params = []
     # Calculate the start and end indices for the current output file
     start_idx = i * rows
     end_idx = (i + 1) * rows
@@ -52,11 +50,7 @@ for i in range(num_nodes):
     # Extract the rows for the current output file
     subset = x[start_idx:end_idx]
 
-    for k, param in enumerate(subset):
-        thread_id = k % num_tasks + 1
-        thread_params.append((thread_id,) + param)
-
-    thread_params = pd.DataFrame(thread_params)
+    thread_params = pd.DataFrame(subset)
     filename = f'data_output/Parameter_exploration/Samples_{i}.csv'
     thread_params.to_csv(filename, index=False)
 

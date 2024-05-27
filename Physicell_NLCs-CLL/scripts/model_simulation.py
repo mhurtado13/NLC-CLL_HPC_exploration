@@ -7,21 +7,20 @@ import random
 from collect_data import collect
 from merge_data import merge
 
-def simulate_model(input_file_path, replicates, node, *args):                
+def simulate_model(input_file_path, replicates, node, process, *args):                
     
-    thread = args[0] #Extract in which thread we are
-    values = args[1:]
+    values = args
     errors = []
     tree = ET.parse(input_file_path) #Load original xml file
     root = tree.getroot()
-    print("Running simulation with parameters " + str(values) + " in task number " + str(thread) + " using node " + str(node))
+    print("Running simulation with parameters " + str(values) + " in task number " + str(process) + " using node " + str(node))
     
     #Creating folder for each node
     output_node = "output/output_node_" + str(node)
     os.makedirs(output_node, exist_ok=True)
     
-    #Creating subfolder for each thread inside each node
-    output_folder = output_node + "/output_" + str(thread)
+    #Creating subfolder for each process inside each node
+    output_folder = output_node + "/output_" + str(process)
     os.makedirs(output_folder, exist_ok=True)
 
     #Parsing output folder in xml file 
@@ -32,7 +31,7 @@ def simulate_model(input_file_path, replicates, node, *args):
     config_node = "config/config_node_" + str(node)
     os.makedirs(config_node, exist_ok=True)
 
-    xml_file = config_node + "/configuration_file_" + str(thread) + ".xml"
+    xml_file = config_node + "/configuration_file_" + str(process) + ".xml"
 
     param_behaviors = {'cancer':{'uptake_rate': 0, 'speed': 1, 'transformation_rate': 2},
                     'monocytes':{'speed': 3, 'dead_phagocytosis_rate': 4},
@@ -97,7 +96,7 @@ def simulate_model(input_file_path, replicates, node, *args):
                 break #exit loop to avoid running all replicates if there is an error in simulation 
 
             if terminate == False:
-                print("Collecting data in task " + str(thread))
+                print("Collecting data in task " + str(process))
                 res = collect(output_folder, xml_file) #We collect the data at each iteration
                 data = pd.concat([res, data], axis=1)
         
@@ -105,13 +104,10 @@ def simulate_model(input_file_path, replicates, node, *args):
           
     if terminate == False:
         viability, concentration = merge(data) #Merge data of replicates 
-        print("Physicell simulation for task " + str(thread) + " with parameters " + str(values) + " in node " + str(node) + " completed succesfully! :)")
+        print("Physicell simulation for task " + str(process) + " with parameters " + str(values) + " in node " + str(node) + " completed succesfully! :)")
     else:
         viability = pd.Series([0] * 10)
         concentration = pd.Series([0] * 10)
-        print("Physicell simulation for task " + str(thread) + " with parameters " + str(values) + " in node " + str(node) + " did not run succesfully... completing with 0s")
-
-    #Remove output directory to create a new one if same thread will be used with another config file
-    shutil.rmtree(output_folder)
+        print("Physicell simulation for task " + str(process) + " with parameters " + str(values) + " in node " + str(node) + " did not run succesfully... completing with 0s")
 
     return viability, concentration, errors
