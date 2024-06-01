@@ -4,7 +4,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=256G
-#SBATCH --partition=workq
+#SBATCH --partition=unlimitq
 #SBATCH --mail-type=FAIL,BEGIN,END
 #SBATCH --mail-user=marcelo.hurtado@inserm.fr
 #SBATCH -o /home/mhurtado/work/NLC-CLL_HPC_exploration/Physicell_NLCs-CLL/logs/Exploration/%x.o
