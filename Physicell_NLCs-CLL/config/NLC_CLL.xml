@@ -137,9 +137,9 @@
                     </model>
                 </death>
                 <volume>
-                    <total units="micron^3">196</total>
+                    <total units="micron^3">2494</total>
                     <fluid_fraction units="dimensionless">0.75</fluid_fraction>
-                    <nuclear units="micron^3">41</nuclear>
+                    <nuclear units="micron^3">540</nuclear>
                     <fluid_change_rate units="1/min">0.05</fluid_change_rate>
                     <cytoplasmic_biomass_change_rate units="1/min">0.0045</cytoplasmic_biomass_change_rate>
                     <nuclear_biomass_change_rate units="1/min">0.0055</nuclear_biomass_change_rate>
@@ -168,7 +168,7 @@
                 </mechanics>
                 <motility>
                     <speed units="micron/min">1</speed>
-                    <persistence_time units="min">5</persistence_time>
+                    <persistence_time units="min">1</persistence_time>
                     <migration_bias units="dimensionless">.05</migration_bias>
                     <options>
                         <enabled>true</enabled>
@@ -238,7 +238,7 @@
                 </cell_transformations>
             </phenotype>
             <custom_data>
-            </custom_data>
+          </custom_data>
         </cell_definition>
         <cell_definition name="monocytes" ID="1">
             <phenotype>
@@ -279,15 +279,15 @@
                     </model>
                 </death>
                 <volume>
-                    <total units="micron^3">980</total>
+                    <total units="micron^3">3500</total>
                     <fluid_fraction units="dimensionless">0.75</fluid_fraction>
-                    <nuclear units="micron^3">205</nuclear>
+                    <nuclear units="micron^3">540</nuclear>
                     <fluid_change_rate units="1/min">0.05</fluid_change_rate>
                     <cytoplasmic_biomass_change_rate units="1/min">0.0045</cytoplasmic_biomass_change_rate>
                     <nuclear_biomass_change_rate units="1/min">0.0055</nuclear_biomass_change_rate>
-                    <calcified_fraction units="dimensionless">0</calcified_fraction>
-                    <calcification_rate units="1/min">0</calcification_rate>
-                    <relative_rupture_volume units="dimensionless">2.0</relative_rupture_volume>
+                    <calcified_fraction units="dimensionless">0.0</calcified_fraction>
+                    <calcification_rate units="1/min">0.0</calcification_rate>
+                    <relative_rupture_volume units="dimensionless">2</relative_rupture_volume>
                 </volume>
                 <mechanics>
                     <cell_cell_adhesion_strength units="micron/min">0.4</cell_cell_adhesion_strength>
@@ -310,7 +310,7 @@
                 </mechanics>
                 <motility>
                     <speed units="micron/min">1</speed>
-                    <persistence_time units="min">5</persistence_time>
+                    <persistence_time units="min">1</persistence_time>
                     <migration_bias units="dimensionless">.2</migration_bias>
                     <options>
                         <enabled>true</enabled>
@@ -380,7 +380,7 @@
                 </cell_transformations>
             </phenotype>
             <custom_data>
-            </custom_data>
+          </custom_data>
         </cell_definition>
         <cell_definition name="macrophages" ID="2">
             <phenotype>
@@ -421,15 +421,15 @@
                     </model>
                 </death>
                 <volume>
-                    <total units="micron^3">1910</total>
+                    <total units="micron^3">6500</total>
                     <fluid_fraction units="dimensionless">0.75</fluid_fraction>
-                    <nuclear units="micron^3">410</nuclear>
+                    <nuclear units="micron^3">540</nuclear>
                     <fluid_change_rate units="1/min">0.05</fluid_change_rate>
                     <cytoplasmic_biomass_change_rate units="1/min">0.0045</cytoplasmic_biomass_change_rate>
                     <nuclear_biomass_change_rate units="1/min">0.0055</nuclear_biomass_change_rate>
-                    <calcified_fraction units="dimensionless">0</calcified_fraction>
-                    <calcification_rate units="1/min">0</calcification_rate>
-                    <relative_rupture_volume units="dimensionless">2.0</relative_rupture_volume>
+                    <calcified_fraction units="dimensionless">0.0</calcified_fraction>
+                    <calcification_rate units="1/min">0.0</calcification_rate>
+                    <relative_rupture_volume units="dimensionless">2</relative_rupture_volume>
                 </volume>
                 <mechanics>
                     <cell_cell_adhesion_strength units="micron/min">0</cell_cell_adhesion_strength>
@@ -452,7 +452,7 @@
                 </mechanics>
                 <motility>
                     <speed units="micron/min">1</speed>
-                    <persistence_time units="min">5</persistence_time>
+                    <persistence_time units="min">1</persistence_time>
                     <migration_bias units="dimensionless">.2</migration_bias>
                     <options>
                         <enabled>true</enabled>
@@ -522,7 +522,7 @@
                 </cell_transformations>
             </phenotype>
             <custom_data>
-            </custom_data>
+          </custom_data>
         </cell_definition>
         <cell_definition name="NLCs" ID="3">
             <phenotype>
@@ -563,15 +563,15 @@
                     </model>
                 </death>
                 <volume>
-                    <total units="micron^3">1910</total>
+                    <total units="micron^3">6500</total>
                     <fluid_fraction units="dimensionless">0.75</fluid_fraction>
-                    <nuclear units="micron^3">410</nuclear>
+                    <nuclear units="micron^3">540</nuclear>
                     <fluid_change_rate units="1/min">0.05</fluid_change_rate>
                     <cytoplasmic_biomass_change_rate units="1/min">0.0045</cytoplasmic_biomass_change_rate>
                     <nuclear_biomass_change_rate units="1/min">0.0055</nuclear_biomass_change_rate>
-                    <calcified_fraction units="dimensionless">0</calcified_fraction>
-                    <calcification_rate units="1/min">0</calcification_rate>
-                    <relative_rupture_volume units="dimensionless">2.0</relative_rupture_volume>
+                    <calcified_fraction units="dimensionless">0.0</calcified_fraction>
+                    <calcification_rate units="1/min">0.0</calcification_rate>
+                    <relative_rupture_volume units="dimensionless">2</relative_rupture_volume>
                 </volume>
                 <mechanics>
                     <cell_cell_adhesion_strength units="micron/min">0</cell_cell_adhesion_strength>
@@ -594,7 +594,7 @@
                 </mechanics>
                 <motility>
                     <speed units="micron/min">1</speed>
-                    <persistence_time units="min">5</persistence_time>
+                    <persistence_time units="min">1</persistence_time>
                     <migration_bias units="dimensionless">.2</migration_bias>
                     <options>
                         <enabled>true</enabled>
@@ -664,7 +664,7 @@
                 </cell_transformations>
             </phenotype>
             <custom_data>
-            </custom_data>
+          </custom_data>
         </cell_definition>
         <cell_definition name="apoptotic" ID="4">
             <phenotype>
@@ -705,9 +705,9 @@
                     </model>
                 </death>
                 <volume>
-                    <total units="micron^3">196</total>
+                    <total units="micron^3">2494</total>
                     <fluid_fraction units="dimensionless">0.75</fluid_fraction>
-                    <nuclear units="micron^3">41</nuclear>
+                    <nuclear units="micron^3">540</nuclear>
                     <fluid_change_rate units="1/min">0.05</fluid_change_rate>
                     <cytoplasmic_biomass_change_rate units="1/min">0.0045</cytoplasmic_biomass_change_rate>
                     <nuclear_biomass_change_rate units="1/min">0.0055</nuclear_biomass_change_rate>
@@ -736,7 +736,7 @@
                 </mechanics>
                 <motility>
                     <speed units="micron/min">1.0</speed>
-                    <persistence_time units="min">5</persistence_time>
+                    <persistence_time units="min">1</persistence_time>
                     <migration_bias units="dimensionless">0.5</migration_bias>
                     <options>
                         <enabled>true</enabled>
@@ -806,7 +806,7 @@
                 </cell_transformations>
             </phenotype>
             <custom_data>
-            </custom_data>
+          </custom_data>
         </cell_definition>
     </cell_definitions>
 

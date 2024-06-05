@@ -21,3 +21,4 @@ NODE=3
 
 python scripts/run_model.py $FILE $NUM_TASKS $NUM_REPLICATES $NODE
 
+#Before running this, run in the console: python param_exploration.py $NUM_NODES

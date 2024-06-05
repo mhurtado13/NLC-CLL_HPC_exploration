@@ -18,11 +18,6 @@ def collect(dir_output, config_file):
     CLL_initial = len(initial[(initial['cell_type']=="cancer")])
     apoptotic_initial = len(initial[(initial['cell_type']=="apoptotic")])
 
-    positions = []
-    for days in range(0,14):
-        hours = 24*days
-        positions.append(hours)
-
     alive = [CLL_initial]
     dead = [0]
     apoptotic = [apoptotic_initial]

@@ -1,43 +1,31 @@
 import sys
 import pandas as pd
-from multiprocessing.pool import ThreadPool
-from multiprocessing import Pool
 from sampling import sobol_sampling
-from model_simulation import run_model
 
 nsamples = int(sys.argv[1])
-num_tasks = int(sys.argv[2])
-n_replicates = int(sys.argv[3]) 
-
-pool = ThreadPool(num_tasks) 
+num_nodes = int(sys.argv[2])
 
 #Load samples from Sobol
 samples_sobol_all = sobol_sampling(nsamples)
-samples_sobol_all = tuple(samples_sobol_all.itertuples(index=False, name=None))
 
-thread_params = []
+#N*(2D + 2) N = nsamples D = inputs 
 
-for i, param in enumerate(samples_sobol_all):
-    thread_id = i % num_tasks + 1
-    thread_params.append((thread_id,) + param)
+#Subspaces for running in different nodes
+rows = int(len(samples_sobol_all)/num_nodes)
 
-params = [(("config/NLC_CLL.xml", n_replicates) + thread_params[contador]) for contador in range(len(thread_params))]
-results = pool.starmap(run_model, params)
+# Loop over the number of output files to generate
+for i in range(num_nodes):
+    # Calculate the start and end indices for the current output file
+    start_idx = i * rows
+    end_idx = (i + 1) * rows
 
-pool.close()
-pool.join()
+    # If this is the last file, include any remaining rows
+    if i == num_nodes - 1:
+        end_idx = len(samples_sobol_all)
 
-print("Pool closed")
-print("Everything done! Results are saved in the ./data_output folder")
+    # Extract the rows for the current output file
+    subset = samples_sobol_all[start_idx:end_idx]
 
-#Initialize viability and concentration vectors with first results
-viability = results[0][0]
-concentration = results[0][1]
-
-for i in range(1, len(results)):
-    via, conc = results[i]
-    viability = pd.concat([viability, via], axis=1, ignore_index=True) #concatenating in the same order as values
-    concentration = pd.concat([concentration, conc], axis=1, ignore_index=True) #concatenating in the same order as values
-
-viability.to_csv('data_output/viability_SA.csv', index=False, header=True)
-concentration.to_csv('data_output/concentration_SA.csv', index=False, header=True)
+    thread_params = pd.DataFrame(subset)
+    filename = f'data_output/Sensitivity_analysis/samples/Samples_{i}.csv'
+    thread_params.to_csv(filename, index=False)
