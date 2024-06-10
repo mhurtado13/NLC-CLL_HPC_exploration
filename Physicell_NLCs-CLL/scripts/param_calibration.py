@@ -18,10 +18,10 @@ concentration_exp = experimental[:,2]
 
 class calibrationProb(Problem):
     def __init__(self):
-        super().__init__(n_var = 12, #12 parameters
+        super().__init__(n_var = 14, #14 parameters
                        n_obj = 2, #2 objective functions: viability and concentration
-                       xl = np.array([0.9, 0.9, 4e-5, 0.9, 24e-2, 0.9, 91e-2, 0.9, 0.9, 3e-2, 1e-3, 0.9]), #lower bounds
-                       xu = np.array([1.2, 1.2, 6e-5, 1.2, 26e-2, 1.2, 93e-2, 1.2, 1.2, 5e-2, 4e-3, 1.2])) #upper bounds
+                       xl = np.array([0.9, 0.9, 4e-5, 0.9, 24e-2, 4e-4, 0.9, 91e-2, 4e-4, 0.9, 0.9, 3e-2, 1e-3, 0.9]), #lower bounds
+                       xu = np.array([1.2, 1.2, 6e-5, 1.2, 26e-2, 6e-4, 1.2, 93e-2, 6e-4, 1.2, 1.2, 5e-2, 4e-3, 1.2])) #upper bounds
         
     def _evaluate(self, x, out):
         

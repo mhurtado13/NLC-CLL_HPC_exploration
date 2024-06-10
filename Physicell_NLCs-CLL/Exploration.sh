@@ -11,9 +11,9 @@
 #SBATCH -e /home/mhurtado/work/NLC-CLL_HPC_exploration/Physicell_NLCs-CLL/logs/Exploration/%x.e
 
 #Define file of samples to run exploration
-FILE="data_output/Parameter_exploration/Samples_0.csv"
+FILE="data_output/Parameter_exploration/samples/Samples_0.csv"
 #Define the number of tasks running in parallel
-NUM_TASKS=32
+NUM_TASKS=22
 #Define the number replicates for bootstrapping 
 NUM_REPLICATES=10
 #Specify which node to use
