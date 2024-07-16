@@ -17,15 +17,16 @@ def collect(dir_output, config_file):
     initial = timesteps[0].get_cell_df(states=1)
     CLL_initial = len(initial[(initial['cell_type']=="cancer")])
     apoptotic_initial = len(initial[(initial['cell_type']=="apoptotic")])
+    dead_initial = len(initial[(initial['cell_type']=="dead")])
 
     alive = [CLL_initial]
-    dead = [0]
+    dead = [dead_initial]
     apoptotic = [apoptotic_initial]
     for i in range(1, len(positions)):
         step = timesteps[positions[i]].get_cell_df(states=1)
-        number_alive = len(step[(step['cell_type']=='cancer')&(step['dead']==False)])
+        number_alive = len(step[(step['cell_type']=='cancer')&(step['dead']==False)]) #step['dead'] is only a formality cause all cells are considered 'alive', 'dead' is another celltype for this model
         number_apoptotic = len(step[(step['cell_type']=='apoptotic')&(step['dead']==False)])
-        number_dead = len(step[step['dead']==True])
+        number_dead = len(step[(step['cell_type']=='dead')&(step['dead']==False)])
         alive.append(number_alive)
         dead.append(number_dead)
         apoptotic.append(number_apoptotic)
