@@ -2,24 +2,18 @@ import pandas as pd
 import sys
 import numpy as np
 
-#Simulations = 14 variables x 4 values x 10 replicates = 560 simulations
+#Simulations = 20 variables x 5 values x 10 replicates = 1000 simulations
 
 num_nodes = int(sys.argv[1])
 
-input = {'uptake_rate_cancer': 1.0, 'speed_cancer': 1.0, 'transformation_rate_cancer': 5e-5,
-                  'speed_monocytes':1.0, 'dead_phagocytosis_rate_monocytes':25e-2, 'transformation_rate_monocytes': 5e-4,
-                  'speed_macrophages':1.0, 'dead_phagocytosis_rate_macrophages':92e-2, 'transformation_rate_macrophages': 5e-4,
-                  'secretion_rate_NLCs':1.0, 'speed_NLCs':1.0, 'dead_phagocytosis_rate_NLCs':4e-2, 
-                  'death_rate_apoptotic':3e-3, 'secretion_rate_apoptotic': 1.0}
-
-#death rate apoptotic cells
-#number of initial apoptotic cells 
-#number of initial CLL cells
+input = {'uptake_rate_cancer': 1.0, 'secretion_rate_cancer':1.0, 'speed_cancer': 1.0, 'transformation_rate_cancer': 3e-5, 'relative_maximum_adhesion_distance': 0, 'cell_adhesion_affinity_cancer': 1,
+         'speed_monocytes': 1.0, 'transformation_rate_monocytes': 95e-6, 'live_phagocytosis_rate_monocytes':25e-2, 'speed_macrophages': 1.0, 'live_phagocytosis_rate_macrophages':92e-2, 
+         'attack_rate_macrophages': 5e-2, 'relative_maximum_adhesion_distance': 0, 'cell_adhesion_affinity_macrophages': 1, 'speed_NLCs': 1.0, 'live_phagocytosis_rate_NLCs':4e-2, 
+         'secretion_rate_apoptotic': 1.0, 'speed_apoptotic': 1.0, 'transformation_rate_apoptotic': 5e-05, 'secretion_rate_dead': 1.0}
 
 default_values = list(input.values())
 
-explore_values = list([5e-7, 5e-5, 5e-3, 5e-1])
-#explore_values = [0,1]
+explore_values = list([1e-6, 1e-3, 1e-1, 2, 5])
 
 def reset_values(data, values_def):        
     for i, key in enumerate(data.keys()):
@@ -32,8 +26,6 @@ for parameter in input.keys():
         input[parameter] = i
         x.append(tuple(input.values()))
         reset_values(input, default_values)
-
-# 12 * 20 = 240 parameters
 
 #Subspaces for running in different nodes
 rows = int(len(x)/num_nodes)
