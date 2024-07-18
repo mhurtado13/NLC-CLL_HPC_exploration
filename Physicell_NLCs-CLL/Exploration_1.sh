@@ -11,7 +11,7 @@
 #SBATCH -e /home/mhurtado/work/NLC-CLL_HPC_exploration/Physicell_NLCs-CLL/logs/Exploration/%x.e
 
 #Define file of samples to run exploration
-FILE="data_output/Parameter_exploration/Samples_0.csv"
+FILE="data_output/Parameter_exploration/samples/Samples_0.csv"
 #Define the number of tasks running in parallel
 NUM_TASKS=32
 #Define the number replicates for bootstrapping 
@@ -21,5 +21,5 @@ NODE=1
 
 python scripts/run_model.py $FILE $NUM_TASKS $NUM_REPLICATES $NODE
 
-#Before running this, run in the console: python param_exploration.py $NUM_NODES
+#Before running this, run in the console: python scripts/param_exploration.py $NUM_NODES
 
