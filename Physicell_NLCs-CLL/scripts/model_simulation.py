@@ -84,7 +84,7 @@ def simulate_model(input_file_path, replicates, node, process, *args):
                 param_element.text = str(param_value)
             elif celltype == 'apoptotic' and param == 'secretion_rate':
                 param_value = values[column]
-                param_element = root.find(f".//*[@name='{celltype}']//*[@name='dead substrate']//{param}")
+                param_element = root.find(f".//*[@name='{celltype}']//substrate[@name='dead substrate']/{param}")
                 param_element.text = str(param_value)
             elif celltype == 'apoptotic' and param == 'transformation_rate':
                 param_value = values[column] #Extract each value [i, col_index]
@@ -92,7 +92,7 @@ def simulate_model(input_file_path, replicates, node, process, *args):
                 param_element.text = str(param_value)
             elif celltype == 'dead' and param == 'secretion_rate':
                 param_value = values[column]
-                param_element = root.find(f".//*[@name='{celltype}']//*[@name='dead substrate']//{param}")
+                param_element = root.find(f".//*[@name='{celltype}']//substrate[@name='dead substrate']/{param}")
                 param_element.text = str(param_value)    
             else:
                 param_value = values[column] #Extract each value [i, col_index]
