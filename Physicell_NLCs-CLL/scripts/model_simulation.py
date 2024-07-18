@@ -34,9 +34,9 @@ def simulate_model(input_file_path, replicates, node, process, *args):
     xml_file = config_node + "/configuration_file_" + str(process) + ".xml"
 
     param_behaviors = {'cancer':{'uptake_rate': 0, 'secretion_rate': 1, 'speed': 2, 'transformation_rate': 3, 'relative_maximum_adhesion_distance': 4, 'cell_adhesion_affinity': 5},
-                    'monocytes':{'speed': 6, 'transformation_rate': 7, 'live_phagocytosis_rates': 8}, 
-                    'macrophages':{'speed': 9, 'live_phagocytosis_rates': 10, 'attack_rate': 11, 'relative_maximum_adhesion_distance': 12, 'cell_adhesion_affinity': 13},
-                    'NLCs': {'speed': 14, 'live_phagocytosis_rates': 15},
+                    'monocytes':{'speed': 6, 'transformation_rate': 7, 'phagocytosis_rate': 8}, 
+                    'macrophages':{'speed': 9, 'phagocytosis_rate': 10, 'attack_rate': 11, 'relative_maximum_adhesion_distance': 12, 'cell_adhesion_affinity': 13},
+                    'NLCs': {'speed': 14, 'phagocytosis_rate': 15},
                     'apoptotic':{'secretion_rate':16, 'speed':17, 'transformation_rate_apoptotic': 18},
                     'dead':{'secretion_rate_dead': 19}}
         
@@ -62,11 +62,11 @@ def simulate_model(input_file_path, replicates, node, process, *args):
                 param_value = values[column] #Extract each value [i, col_index]
                 param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='macrophages']") #Find the param name in XML file
                 param_element.text = str(param_value)
-            elif celltype == 'monocytes' and param == 'live_phagocytosis_rates':
+            elif celltype == 'monocytes' and param == 'phagocytosis_rate':
                 param_value = values[column] #Extract each value [i, col_index]
                 param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='apoptotic']") #Find the param name in XML file
                 param_element.text = str(param_value)
-            elif celltype == 'macrophages' and param == 'live_phagocytosis_rates':
+            elif celltype == 'macrophages' and param == 'phagocytosis_rate':
                 param_value = values[column] #Extract each value [i, col_index]
                 param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='apoptotic']") #Find the param name in XML file
                 param_element.text = str(param_value)
@@ -78,7 +78,7 @@ def simulate_model(input_file_path, replicates, node, process, *args):
                 param_value = values[column] #Extract each value [i, col_index]
                 param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='cancer']") #Find the param name in XML file
                 param_element.text = str(param_value)                    
-            elif celltype == 'NLCs' and param == 'live_phagocytosis_rates':
+            elif celltype == 'NLCs' and param == 'phagocytosis_rate':
                 param_value = values[column] #Extract each value [i, col_index]
                 param_element = root.find(f".//*[@name='{celltype}']//*[@name='apoptotic']//{param}") #Find the param name in XML file
                 param_element.text = str(param_value)
