@@ -27,6 +27,4 @@ def sobol_sampling(nsamples):
 
     return sobol_samples
 
-    #Save output
-    #sobol_samples.to_csv('data_output/sobol_samples.csv', index=False)
 
