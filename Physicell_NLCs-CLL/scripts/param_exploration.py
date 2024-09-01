@@ -2,7 +2,7 @@ import pandas as pd
 import sys
 import numpy as np
 
-#Simulations = 20 variables x 5 values x 10 replicates = 1000 simulations
+#Simulations = 20 variables x 9 values x 10 replicates = 1800 simulations
 
 num_nodes = int(sys.argv[1])
 
@@ -13,7 +13,7 @@ input = {'uptake_rate_cancer': 1.0, 'secretion_rate_cancer':1.0, 'speed_cancer':
 
 default_values = list(input.values())
 
-explore_values = list([1e-6, 1e-3, 1e-1, 2, 5])
+explore_values = list([1e-6, 1e-4, 1e-3, 1e-2, 1e-1, 2, 3, 4, 5])
 
 def reset_values(data, values_def):        
     for i, key in enumerate(data.keys()):
