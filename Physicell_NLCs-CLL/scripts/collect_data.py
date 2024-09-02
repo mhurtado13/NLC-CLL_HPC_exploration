@@ -51,7 +51,8 @@ def collect(dir_output, config_file, node):
         except Exception as e:
             destination_file = os.path.join(error_folder, os.path.basename(config_file))
             shutil.copy(config_file, destination_file)
-            break  # Stop further processing after error
+            number = 0  # Continue
+            viability.append(number)
 
     ####Remove day 4, 5, 11, 12 because of experimental
     viability = np.delete(viability, [4,5,11,12], axis=0)
@@ -67,7 +68,8 @@ def collect(dir_output, config_file, node):
         except Exception as e:
             destination_file = os.path.join(error_folder, os.path.basename(config_file))
             shutil.copy(config_file, destination_file)
-            break  # Stop further processing after error
+            number = 0  # Continue 
+            concentration.append(number)
 
     ####Remove day 4, 5, 11, 12 because of experimental
     concentration = np.delete(concentration, [4,5,11,12], axis=0)
