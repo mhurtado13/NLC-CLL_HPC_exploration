@@ -1,9 +1,15 @@
 import numpy as np
 import pandas as pd
 import pcdl
+import shutil
+import os
 
 #config_file = 'config/NLC_CLL.xml'
-def collect(dir_output, config_file):
+def collect(dir_output, config_file, node):
+    #Create error folder
+    error_folder = "error/error_node_" + str(node)
+    os.makedirs(error_folder, exist_ok=True)
+
     mcdsts = pcdl.TimeSeries(dir_output, settingxml=config_file, verbose = False) 
     timesteps = mcdsts.get_mcds_list()
 
@@ -38,8 +44,14 @@ def collect(dir_output, config_file):
     #viability at time t =  CLL alive at time t / (CLL alive + CLL apoptotic + CLL dead) at time t
     viability = []
     for i in range(len(CLL_alive)):
-        number = (CLL_alive[i]/(CLL_alive[i]+CLL_apoptotic[i]+CLL_dead[i]))*100
-        viability.append(number)
+        try:
+            # Calculate the number and append to viability list
+            number = (CLL_alive[i] / (CLL_alive[i] + CLL_apoptotic[i] + CLL_dead[i])) * 100
+            viability.append(number)
+        except Exception as e:
+            destination_file = os.path.join(error_folder, os.path.basename(config_file))
+            shutil.copy(config_file, destination_file)
+            break  # Stop further processing after error
 
     ####Remove day 4, 5, 11, 12 because of experimental
     viability = np.delete(viability, [4,5,11,12], axis=0)
@@ -49,8 +61,13 @@ def collect(dir_output, config_file):
     #concentration at time t =  CLL alive at time t / (CLL initial)
     concentration = []
     for i in range(len(CLL_alive)):
-        number = (CLL_alive[i]/CLL_initial)*100
-        concentration.append(number)
+        try:
+            number = (CLL_alive[i]/CLL_initial)*100
+            concentration.append(number)
+        except Exception as e:
+            destination_file = os.path.join(error_folder, os.path.basename(config_file))
+            shutil.copy(config_file, destination_file)
+            break  # Stop further processing after error
 
     ####Remove day 4, 5, 11, 12 because of experimental
     concentration = np.delete(concentration, [4,5,11,12], axis=0)
@@ -60,12 +77,3 @@ def collect(dir_output, config_file):
     data = pd.concat([viability, concentration], axis=1)
 
     return data
-    #file_csv = 'data_output/data.csv'
-
-    #If the file already exists
-    #if os.path.exists(file_csv):
-    #    old_data = pd.read_csv(file_csv)
-    #    new_data = pd.concat([old_data, df], axis=1)
-    #    new_data.to_csv(file_csv, index=False, header=True)
-    #else:
-    #    df.to_csv(file_csv, index=False, header=True)

@@ -14,7 +14,7 @@ def simulate_model(input_file_path, replicates, node, process, *args):
     tree = ET.parse(input_file_path) #Load original xml file
     root = tree.getroot()
     print("Running simulation with parameters " + str(values) + " in task number " + str(process) + " using node " + str(node))
-    
+
     #Creating folder for each node
     output_node = "output/output_node_" + str(node)
     os.makedirs(output_node, exist_ok=True)
@@ -130,7 +130,7 @@ def simulate_model(input_file_path, replicates, node, process, *args):
 
             if terminate == False:
                 print("Collecting data in task " + str(process))
-                res = collect(output_folder, xml_file) #We collect the data at each iteration
+                res = collect(output_folder, xml_file, node) #We collect the data at each iteration
                 data = pd.concat([res, data], axis=1)
         
         loop = False #when the loop finishes exit the while, this is used when terminate == False, meaning that it run succesfully     
@@ -142,5 +142,9 @@ def simulate_model(input_file_path, replicates, node, process, *args):
         viability = pd.Series([0] * 10)
         concentration = pd.Series([0] * 10)
         print("Physicell simulation for task " + str(process) + " with parameters " + str(values) + " in node " + str(node) + " did not run succesfully... completing with 0s")
+
+    #Clean memory
+    shutil.rmtree(output_folder) #Remove output folder for each task when it is done 
+    os.remove(xml_file) #Remove xml file for each task when it is done
 
     return viability, concentration, errors

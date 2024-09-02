@@ -3,6 +3,8 @@ from model_simulation import simulate_model
 from multiprocessing.pool import ThreadPool
 import pandas as pd
 import sys
+import shutil
+import os
 
 file_params = str(sys.argv[1])
 num_tasks = int(sys.argv[2])
@@ -23,6 +25,11 @@ pool.join()
 
 print("Pool closed")
 print("Everything done in node " + str(n_node) + "! Results are saved in the ./data_output folder")
+
+#Clean memory
+shutil.rmtree("output/output_node_" + str(n_node)) #Remove output folder for each node when it is done 
+shutil.rmtree("config/config_node_" + str(n_node)) #Remove config folder for each node when it is done
+
 #Initialize viability and concentration vectors with first results
 viability = results[0][0]
 concentration = results[0][1]
@@ -35,9 +42,11 @@ for i in range(1, len(results)):
 
 viability_name = f'data_output/Sensitivity_analysis/results/viability_{n_node}.csv'
 concentration_name = f'data_output/Sensitivity_analysis/results/concentration_{n_node}.csv'
+errors_name = f'data_output/Sensitivity_analysis/results/Physicell_errors_{n_node}.csv'
 
 viability.to_csv(viability_name, index=False, header=True)
 concentration.to_csv(concentration_name, index=False, header=True)
+param_error.to_csv(errors_name, index=False, header=True)
 
 if param_error:
     print("Physicell errors in node " + str(n_node) + " for parameters:\n" + str(param_error))
