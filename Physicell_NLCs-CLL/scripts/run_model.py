@@ -46,9 +46,9 @@ errors_name = f'data_output/Sensitivity_analysis/results/Physicell_errors_{n_nod
 
 viability.to_csv(viability_name, index=False, header=True)
 concentration.to_csv(concentration_name, index=False, header=True)
-param_error.to_csv(errors_name, index=False, header=True)
 
 if param_error:
+    param_error.to_csv(errors_name, index=False, header=True)
     print("Physicell errors in node " + str(n_node) + " for parameters:\n" + str(param_error))
 else:
     print("All parameters were evaluated succesfully in node " + str(n_node))
