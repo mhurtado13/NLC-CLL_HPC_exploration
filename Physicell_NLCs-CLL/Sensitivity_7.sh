@@ -2,7 +2,7 @@
 #SBATCH --job-name=NLC-CLL-Sensitivity-node7
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=128
 #SBATCH --mem=256G
 #SBATCH --partition=unlimitq
 #SBATCH --mail-type=FAIL,BEGIN,END
