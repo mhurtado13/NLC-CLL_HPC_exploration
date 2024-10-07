@@ -15,14 +15,14 @@ FILE="data_output/Sensitivity_analysis/samples/Samples_1.csv"
 #Define the number of tasks running in parallel
 NUM_TASKS=32
 #Define the number replicates for bootstrapping 
-NUM_REPLICATES=10
+NUM_REPLICATES=5
 #Specify which node to use
 NODE=2
 
 python scripts/run_model.py $FILE $NUM_TASKS $NUM_REPLICATES $NODE
 
 #Before running this, run in the console: python param_sensitivity.py $NUM_SAMPLES $NUM_NODES
-#Remember for Sobol: N*(2D + 2)  simulations
+#Remember for Sobol: N*(2D + 2)  simulations N = 512
 
 
 
