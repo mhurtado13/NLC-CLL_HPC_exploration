@@ -37,7 +37,10 @@ libraries_set <- function(){
   suppressMessages(library("factoextra"))
   suppressMessages(library("doParallel"))
   suppressMessages(library("foreach"))
-
+  suppressMessages(library("kernlab")) ##For Gaussiann Process Regression
+  suppressMessages(library("mgcv")) #For Radial Basis Function
+  suppressMessages(library("MASS")) #For polynomial
+  
 }
 
 libraries_set()
@@ -245,242 +248,77 @@ computed.boruta.kfolds = function(folds, data_model, boruta_iterations, fix_boru
     
 }
 
-compute.k_fold_CV = function(model, k_folds, n_rep, stacking = F, boruta, boruta_iterations = NULL, fix_boruta = NULL, tentative = F, boruta_threshold = NULL, file_name = NULL, cv_metric, return){
-  
-  ######### Feature selection across folds 
-  if(boruta == T){
-    cat("Feature selection using Boruta...............................................................\n\n")
-    # Feature selection using Boruta
-    res_boruta = feature.selection.boruta(model, iterations = boruta_iterations, fix = fix_boruta, file_name = file_name, doParallel = F, workers=NULL, threshold = boruta_threshold, return = return)
-    
-    if(tentative == F){
-      if(length(res_boruta$Confirmed) <= 1){ #No enough features selected for training model
-        message("No enough features selected for training a model")
-        results = list()
-        return(results)
-      }else{
-        cat("\nKeeping only features confirmed in more than 80% of the times for training...............................................................\n\n")
-        cat("If you want to consider also tentative features, please specify tentative = T in the parameters.\n\n")
-        train_data = model[,colnames(model)%in%res_boruta$Confirmed, drop = F] %>%
-          mutate(target = model$target)
-      }
-    }else{
-      sum_features = length(res_boruta$Confirmed) + length(res_boruta$Tentative)
-      if(sum_features <= 1){
-        message("No enough features selected for training a model")
-        results = list()
-        return(results)
-      }else{
-        cat("Keeping features confirmed and tentative in more than 80% of the times for training...............................................................\n\n")
-        train_data = model[,colnames(model)%in%c(res_boruta$Confirmed, res_boruta$Tentative), drop = F] %>%
-          mutate(target = model$target) 
-      }
-    }
-    
-    rm(res_boruta) #Clean memory 
-    gc()
-    
-  }else{
-    train_data = model
-  }
-  
-  rm(model) #Clean memory
-  gc()
-  
-  cat("Training machine learning model...............................................................\n\n")
+polynomial_model = function(data, target){
+  model = lm(target ~ poly(., degree = 2), data = data)
+  return(model)
+}
+
+gaussian_process_model = function(data, target){
+  model = gausspr(target ~ ., data = data)
+  return(model)
+}
+
+rbf_model = function(data, target){
+  model = gam(target ~ s(.), data = data)
+  return(rbf_model)
+}
+
+compute_surrogate_models = function(train_data, k_folds, n_rep, file_name = NULL){
+  cat("Training surrogate models...............................................................\n\n")
   
   ######### Machine Learning models
-  metric <- "Accuracy" #metric to use for selecting best methods (default: Accuracy -- for AUC see below and parameter must be equal to cv_metric = "AUC")
+  metric <- "RMSE" #metric to use for selecting best methods (default: Accuracy -- for AUC see below and parameter must be equal to cv_metric = "AUC")
   
-  ######### Stratify K fold cross-validation 
-  #folds <- createFolds(train_data[,'target'], k = k_folds, returnTrain = T, list = T) #this for single folds
+  ### Stratify K fold cross-validation 
   multifolds <- createMultiFolds(train_data[,'target'], k = k_folds, times = n_rep) #repeated folds
-  trainControl <- trainControl(index = multifolds, method="repeatedcv", number=k_folds, repeats=n_rep, verboseIter = F, allowParallel = F, classProbs = TRUE, savePredictions=T)
+  trainControl <- trainControl(index = multifolds, method="repeatedcv", number=k_folds, repeats=n_rep, verboseIter = F, allowParallel = F, savePredictions=T)
   
-  ##################################################### ML models
-  #To do: Re-calculate accuracy values based on tuning parameters optimized by the cv AUC - now the values are based on accuracy! be careful
+  ################## Polynomial
+  fit.polynomial <- train(target~., data = train_data, method = polynomial_model, metric = metric, trControl = trainControl) 
+  predictions.polynomial <- data.frame(Polynomial = predict(fit.polynomial, newdata = train_data))
   
-  ################## Bagged CART
-  fit.treebag <- train(target~., data = train_data, method = "treebag", metric = metric,trControl = trainControl) 
-  predictions.bag <- data.frame(predict(fit.treebag$finalModel, newdata = train_data, type = "prob")) %>% #Predictions using tuned model
-    select(yes) %>%
-    rename(BAG = yes) 
-
-  ################## RF
-  fit.rf <- train(target~., data = train_data, method = "rf", metric = metric,trControl = trainControl)
-  predictions.rf = data.frame(predict(fit.rf$finalModel, newdata = train_data, type = "prob"))[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(RF = yes) #Predictions of model (already ordered)
-
-  ################## C5.0
-  fit.c50 <- train(target~., data = train_data, method = "C5.0", metric = metric,trControl = trainControl)
-  predictions.c50 = data.frame(predict(fit.c50$finalModel, newdata = train_data, type = "prob"))[,"yes", drop=F]  %>% 
-    select(yes) %>%
-    rename(C50 = yes)  #Predictions of model (already ordered)
-
-  ################## LG - Logistic Regression
-  fit.glm <- train(target~., data = train_data, method="glm", metric=metric,trControl=trainControl)
-  predictions.glm = predict(fit.glm, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(GLM = yes)  #Predictions of model (already ordered)
+  ################## Gaussian
+  fit.gaussian <- train(target~., data = train_data, method = gaussian_process_model, metric = metric,trControl = trainControl)
+  predictions.gaussian = data.frame(Gaussian = predict(fit.gaussian, newdata = train_data))
   
-  ################## LDA - Linear Discriminate Analysis
-  fit.lda <- train(target~., data = train_data, method="lda", metric=metric,trControl=trainControl)
-  predictions.lda = predict(fit.lda, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(LDA = yes)  #Predictions of model (already ordered)
-  
-  ################## GLMNET - Regularized Logistic Regression (Elastic net)
-  fit.glmnet <- train(target~., data = train_data, method="glmnet", metric=metric,trControl=trainControl)
-  predictions.glmnet = predict(fit.glmnet, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(GLMNET = yes)  #Predictions of model (already ordered)
-  
-  ################## KNN - k-Nearest Neighbors 
-  fit.knn <- train(target~., data = train_data, method="knn", metric=metric,trControl=trainControl)
-  predictions.knn = predict(fit.knn, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(KNN = yes) #Predictions of model (already ordered)
-  
-  ################## CART - Classification and Regression Trees (CART), 
-  fit.cart <- train(target~., data = train_data, method="rpart", metric=metric,trControl=trainControl)
-  predictions.cart = predict(fit.cart, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(CART = yes)  #Predictions of model (already ordered)
-
-  ################## Regularized Lasso
-  fit.lasso <- train(target~., data = train_data, method="glmnet", metric=metric,trControl=trainControl, tuneGrid = expand.grid(alpha = 1, lambda = seq(0.001, 1, length = 20)))
-  predictions.lasso = predict(fit.lasso, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(LASSO = yes)  #Predictions of model (already ordered)
-  
-  ################## Ridge regression
-  fit.ridge <- train(target~., data = train_data, method="glmnet", metric=metric,trControl=trainControl, tuneGrid = expand.grid(alpha = 0, lambda = seq(0.001, 1, length = 20)))
-  predictions.ridge = predict(fit.ridge, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(RIDGE = yes)  #Predictions of model (already ordered)
-  
-  ################## Support Vector Machine with Radial Kernel
-  fit.svm_radial <- train(target ~ ., data = train_data, method = "svmRadial", metric = metric, trControl = trainControl)
-  predictions.svm_radial = predict(fit.svm_radial, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(SVM_radial = yes)  #Predictions of model (already ordered)
-  
-  ################## Support Vector Machine with Linear Kernel
-  fit.svm_linear <- train(target ~ ., data = train_data, method = "svmLinear", metric = metric, trControl = trainControl)
-  predictions.svm_linear = predict(fit.svm_linear, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(SVM_linear = yes)  #Predictions of model (already ordered)
+  ################## Radial Basis Function RBF
+  fit.rbf <- train(target~., data = train_data, method=rbf_model, metric=metric,trControl=trainControl)
+  predictions.rbf = data.frame(RBF = predict(fit.rbf, newdata = train_data))
   
   ############################################################## Save models
   
-  ensembleResults <- list(BAG = fit.treebag,
-                          RF = fit.rf,
-                          C50 = fit.c50,
-                          GLM = fit.glm,
-                          LDA = fit.lda,
-                          KNN = fit.knn,
-                          CART = fit.cart,
-                          GLMNET = fit.glmnet,
-                          LASSO = fit.lasso,
-                          RIDGE = fit.ridge,
-                          SVM_radial = fit.svm_radial,
-                          SVM_linear = fit.svm_linear)
+  ensembleResults <- list(Polynomial = fit.polynomial,
+                          Gaussian = fit.gaussian,
+                          RBF = fit.rbf)
   
   
-  model_predictions = list(BAG = predictions.bag,
-                                 RF = predictions.rf,
-                                 C50 = predictions.c50,
-                                 GLM = predictions.glm,
-                                 LDA = predictions.lda,
-                                 KNN = predictions.knn,
-                                 CART = predictions.cart,
-                                 GLMNET = predictions.glmnet,
-                                 LASSO = predictions.lasso,
-                                 RIDGE = predictions.ridge,
-                                 SVM_radial = predictions.svm_radial,
-                                 SVM_linear = predictions.svm_linear)
+  model_predictions = list(Polynomial = predictions.polynomial,
+                           Gaussian = predictions.gaussian,
+                           RBF = predictions.rbf)
   
-  ##Tune parameters based on AUC
-  if(cv_metric == "AUC"){
-    tuning_results = compute_AUC_hyperparameters_tuning(ensembleResults, model_predictions, train_data)
-    ensembleResults = tuning_results[[1]]
-    model_predictions = tuning_results[[2]]
-  }
   
-  #Remove models with same predictions across samples (not able to make distinction)
-  model_predictions <- lapply(model_predictions, function(df) {
-    df = df %>%
-      select(where(~ n_distinct(.) > 1))
-    
-    if(ncol(df) == 0){
-      df = NULL
-    }
-      
-    return(df) 
-  })
-  
-  model_predictions = Filter(Negate(is.null), model_predictions) #Discard not useful predictions
-  ensembleResults = ensembleResults[names(model_predictions)] #Discard not useful models based on predictions
+  rm(fit.polynomial, fit.gaussian, fit.rbf, multifolds)
+  gc()
   
   model_predictions = do.call(cbind, model_predictions) #Join as data frame
   
-  rm(fit.treebag, fit.rf, fit.c50, fit.glm, fit.lda, fit.knn, fit.cart, fit.glmnet, fit.lasso, fit.ridge, fit.svm_radial, fit.svm_linear, multifolds)
-  gc()
+  metrics = compute_cv_RMSE(ensembleResults, file_name)
   
-  if(stacking){
-    features = colnames(train_data)[colnames(train_data) != "target"]
-    
-    #Base models using ML models with best accuracy from each family
-    if(cv_metric == "AUC"){
-      base_models = compute_cv_AUC(ensembleResults, base_models = T)
-    }else{
-      base_models = compute_cv_accuracy(ensembleResults, base_models = T)
-    }
-    
-    features_predictions = model_predictions %>%
-      t() %>%
-      data.frame() %>%
-      rownames_to_column("Models") %>%
-      filter(grepl(paste0("\\b(", paste(base_models$Base_models, collapse = "|"), ")\\b"), Models)) %>%
-      column_to_rownames("Models") %>%
-      t() %>%
-      data.frame()
-    
-    meta_features = cbind(features_predictions, "true_label" = train_data$target) 
-    
-    meta_learner <- train(true_label ~ ., data = meta_features, method = "glmnet", trControl = trainControl) #Staking based on simple logistic regression
-    
-    #Base models using ALL ML models 
-    meta_features_all = cbind(model_predictions, "true_label" = train_data$target) 
-    
-    meta_learner_all <- train(true_label ~ ., data = meta_features_all, method = "glmnet", trControl = trainControl) #Staking based on simple logistic regression
-    
-    cat("Meta-learners ML model based on GLM\n")
-    output = list("Features" = features, "Meta_learners" = list("simple" = meta_learner, "all" = meta_learner_all), "Base_models" = base_models$Base_models, "ML_models" = ensembleResults)
-    
-  }else{
-    features = colnames(train_data)[colnames(train_data) != "target"] #Extract features used for model training
-    #metrics = compute_cv_accuracy(ensembleResults, file_name, return = F)
-    metrics = compute_cv_AUC(ensembleResults, file_name, return = F)
-    
-    top_model = metrics[["Top_model"]]
-    
-    model = ensembleResults[[top_model]]
-
-    cat("Best ML model found: ", top_model, "\n")
-    
-    cat("Returning model trained\n")
-    
-    output = list("Features" = features, "Model" = model, "ML_Models" = ensembleResults)
-  }
-
+  top_model = metrics[["Top_model"]]
+  
+  model = ensembleResults[[top_model]]
+  
+  cat("Best surrogate model found: ", top_model, "\n")
+  
+  cat("Returning model trained\n")
+  
+  output = list("Model" = model, "ML_Models" = ensembleResults)
   
   return(output)
   
 }
 
-compute.RMSE_k_fold_CV = function(train_data, k_folds, n_rep, stacking = F, file_name = NULL, return){
+compute.RMSE_k_fold_CV = function(train_data, k_folds, n_rep, stacking = F, file_name = NULL){
   
   cat("Training machine learning model...............................................................\n\n")
   
@@ -490,90 +328,54 @@ compute.RMSE_k_fold_CV = function(train_data, k_folds, n_rep, stacking = F, file
   ######### Stratify K fold cross-validation 
   #folds <- createFolds(train_data[,'target'], k = k_folds, returnTrain = T, list = T) #this for single folds
   multifolds <- createMultiFolds(train_data[,'target'], k = k_folds, times = n_rep) #repeated folds
-  trainControl <- trainControl(index = multifolds, method="repeatedcv", number=k_folds, repeats=n_rep, verboseIter = F, allowParallel = F, classProbs = TRUE, savePredictions=T)
+  trainControl <- trainControl(index = multifolds, method="repeatedcv", number=k_folds, repeats=n_rep, verboseIter = F, allowParallel = F, savePredictions=T)
   
   ##################################################### ML models
-  #To do: Re-calculate accuracy values based on tuning parameters optimized by the cv AUC - now the values are based on accuracy! be careful
-  
   ################## Bagged CART
   fit.treebag <- train(target~., data = train_data, method = "treebag", metric = metric,trControl = trainControl) 
-  predictions.bag <- data.frame(predict(fit.treebag$finalModel, newdata = train_data, type = "prob")) %>% #Predictions using tuned model
-    select(yes) %>%
-    rename(BAG = yes) 
+  predictions.bag <- data.frame(BAG = predict(fit.treebag, newdata = train_data))
   
   ################## RF
   fit.rf <- train(target~., data = train_data, method = "rf", metric = metric,trControl = trainControl)
-  predictions.rf = data.frame(predict(fit.rf$finalModel, newdata = train_data, type = "prob"))[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(RF = yes) #Predictions of model (already ordered)
-  
-  ################## C5.0
-  fit.c50 <- train(target~., data = train_data, method = "C5.0", metric = metric,trControl = trainControl)
-  predictions.c50 = data.frame(predict(fit.c50$finalModel, newdata = train_data, type = "prob"))[,"yes", drop=F]  %>% 
-    select(yes) %>%
-    rename(C50 = yes)  #Predictions of model (already ordered)
+  predictions.rf = data.frame(RF = predict(fit.rf, newdata = train_data))
   
   ################## LG - Logistic Regression
   fit.glm <- train(target~., data = train_data, method="glm", metric=metric,trControl=trainControl)
-  predictions.glm = predict(fit.glm, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(GLM = yes)  #Predictions of model (already ordered)
-  
-  ################## LDA - Linear Discriminate Analysis
-  fit.lda <- train(target~., data = train_data, method="lda", metric=metric,trControl=trainControl)
-  predictions.lda = predict(fit.lda, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(LDA = yes)  #Predictions of model (already ordered)
+  predictions.glm = data.frame(GLM = predict(fit.glm, newdata = train_data))
   
   ################## GLMNET - Regularized Logistic Regression (Elastic net)
   fit.glmnet <- train(target~., data = train_data, method="glmnet", metric=metric,trControl=trainControl)
-  predictions.glmnet = predict(fit.glmnet, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(GLMNET = yes)  #Predictions of model (already ordered)
+  predictions.glmnet = data.frame(GLMNET = predict(fit.glmnet, newdata = train_data))
   
   ################## KNN - k-Nearest Neighbors 
   fit.knn <- train(target~., data = train_data, method="knn", metric=metric,trControl=trainControl)
-  predictions.knn = predict(fit.knn, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(KNN = yes) #Predictions of model (already ordered)
+  predictions.knn = data.frame(KNN = predict(fit.knn, newdata = train_data))
   
   ################## CART - Classification and Regression Trees (CART), 
   fit.cart <- train(target~., data = train_data, method="rpart", metric=metric,trControl=trainControl)
-  predictions.cart = predict(fit.cart, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(CART = yes)  #Predictions of model (already ordered)
+  predictions.cart = data.frame(CART = predict(fit.cart, newdata = train_data))
   
   ################## Regularized Lasso
   fit.lasso <- train(target~., data = train_data, method="glmnet", metric=metric,trControl=trainControl, tuneGrid = expand.grid(alpha = 1, lambda = seq(0.001, 1, length = 20)))
-  predictions.lasso = predict(fit.lasso, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(LASSO = yes)  #Predictions of model (already ordered)
+  predictions.lasso = data.frame(LASSO = predict(fit.lasso, newdata = train_data))
   
   ################## Ridge regression
   fit.ridge <- train(target~., data = train_data, method="glmnet", metric=metric,trControl=trainControl, tuneGrid = expand.grid(alpha = 0, lambda = seq(0.001, 1, length = 20)))
-  predictions.ridge = predict(fit.ridge, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(RIDGE = yes)  #Predictions of model (already ordered)
+  predictions.ridge = data.frame(RIDGE = predict(fit.ridge, newdata = train_data))
   
   ################## Support Vector Machine with Radial Kernel
   fit.svm_radial <- train(target ~ ., data = train_data, method = "svmRadial", metric = metric, trControl = trainControl)
-  predictions.svm_radial = predict(fit.svm_radial, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(SVM_radial = yes)  #Predictions of model (already ordered)
+  predictions.svm_radial = data.frame(SVM_radial = predict(fit.svm_radial, newdata = train_data, type = "prob"))
   
   ################## Support Vector Machine with Linear Kernel
   fit.svm_linear <- train(target ~ ., data = train_data, method = "svmLinear", metric = metric, trControl = trainControl)
-  predictions.svm_linear = predict(fit.svm_linear, newdata = train_data, type = "prob")[,"yes", drop=F]  %>%
-    select(yes) %>%
-    rename(SVM_linear = yes)  #Predictions of model (already ordered)
+  predictions.svm_linear = data.frame(SVM_linear = predict(fit.svm_linear, newdata = train_data))
   
   ############################################################## Save models
   
   ensembleResults <- list(BAG = fit.treebag,
                           RF = fit.rf,
-                          C50 = fit.c50,
                           GLM = fit.glm,
-                          LDA = fit.lda,
                           KNN = fit.knn,
                           CART = fit.cart,
                           GLMNET = fit.glmnet,
@@ -585,9 +387,7 @@ compute.RMSE_k_fold_CV = function(train_data, k_folds, n_rep, stacking = F, file
   
   model_predictions = list(BAG = predictions.bag,
                            RF = predictions.rf,
-                           C50 = predictions.c50,
                            GLM = predictions.glm,
-                           LDA = predictions.lda,
                            KNN = predictions.knn,
                            CART = predictions.cart,
                            GLMNET = predictions.glmnet,
@@ -597,35 +397,14 @@ compute.RMSE_k_fold_CV = function(train_data, k_folds, n_rep, stacking = F, file
                            SVM_linear = predictions.svm_linear)
   
 
-  #Remove models with same predictions across samples (not able to make distinction)
-  model_predictions <- lapply(model_predictions, function(df) {
-    df = df %>%
-      select(where(~ n_distinct(.) > 1))
-    
-    if(ncol(df) == 0){
-      df = NULL
-    }
-    
-    return(df) 
-  })
-  
-  model_predictions = Filter(Negate(is.null), model_predictions) #Discard not useful predictions
-  ensembleResults = ensembleResults[names(model_predictions)] #Discard not useful models based on predictions
+  rm(fit.treebag, fit.rf, fit.glm, fit.knn, fit.cart, fit.glmnet, fit.lasso, fit.ridge, fit.svm_radial, fit.svm_linear, multifolds)
+  gc()
   
   model_predictions = do.call(cbind, model_predictions) #Join as data frame
   
-  rm(fit.treebag, fit.rf, fit.c50, fit.glm, fit.lda, fit.knn, fit.cart, fit.glmnet, fit.lasso, fit.ridge, fit.svm_radial, fit.svm_linear, multifolds)
-  gc()
-  
   if(stacking){
-    features = colnames(train_data)[colnames(train_data) != "target"]
-    
     #Base models using ML models with best accuracy from each family
-    if(cv_metric == "AUC"){
-      base_models = compute_cv_AUC(ensembleResults, base_models = T)
-    }else{
-      base_models = compute_cv_accuracy(ensembleResults, base_models = T)
-    }
+    base_models = compute_cv_RMSE(ensembleResults, base_models = T)
     
     features_predictions = model_predictions %>%
       t() %>%
@@ -646,12 +425,10 @@ compute.RMSE_k_fold_CV = function(train_data, k_folds, n_rep, stacking = F, file
     meta_learner_all <- train(true_label ~ ., data = meta_features_all, method = "glmnet", trControl = trainControl) #Staking based on simple logistic regression
     
     cat("Meta-learners ML model based on GLM\n")
-    output = list("Features" = features, "Meta_learners" = list("simple" = meta_learner, "all" = meta_learner_all), "Base_models" = base_models$Base_models, "ML_models" = ensembleResults)
+    output = list("Meta_learners" = list("simple" = meta_learner, "all" = meta_learner_all), "Base_models" = base_models$Base_models, "ML_models" = ensembleResults)
     
   }else{
-    features = colnames(train_data)[colnames(train_data) != "target"] #Extract features used for model training
-    #metrics = compute_cv_accuracy(ensembleResults, file_name, return = F)
-    metrics = compute_cv_AUC(ensembleResults, file_name, return = F)
+    metrics = compute_cv_RMSE(ensembleResults, file_name)
     
     top_model = metrics[["Top_model"]]
     
@@ -661,7 +438,7 @@ compute.RMSE_k_fold_CV = function(train_data, k_folds, n_rep, stacking = F, file
     
     cat("Returning model trained\n")
     
-    output = list("Features" = features, "Model" = model, "ML_Models" = ensembleResults)
+    output = list("Model" = model, "ML_Models" = ensembleResults)
   }
   
   
@@ -669,139 +446,56 @@ compute.RMSE_k_fold_CV = function(train_data, k_folds, n_rep, stacking = F, file
   
 }
 
-compute.ML = function(norm.counts, trait, partition, stack, seed, file_name = NULL, return){
+compute.ML = function(samples, target_variable, partition, stack, seed, file_name = NULL){
+
+  samples = samples %>%
+    rename_with(~"target", all_of(target_variable)) #In case target variable is with a different name
+  
   set.seed(seed)   
   
   # Do partition
-  index = createDataPartition(clinical[,trait], times = 1, p = partition, list = FALSE) 
+  index = createDataPartition(samples[,"target"], times = 1, p = partition, list = FALSE) 
   
   # Train cohort
-
+  training_set = samples[index,]
   
   # Test cohort
-
+  testing_set = samples[-index,]
   
   ###############################################################################################################################################################################
   
   ####################### Training 5 kfolds and 100 repetitions 
-  training = compute.RMSE_k_fold_CV(train_data, k_folds = 5, n_rep = 100, stacking = stack, file_name = file_name, return= return)
-  
-  if(length(training)!=0){
-    ####################### Testing set
-    #Extract target variable
+  training = compute_surrogate_models(training_set, k_folds = 5, n_rep = 100, file_name = file_name)
 
+  if(length(training)!=0){
     
+    #Extract target variable
+    target = testing_set %>%
+      pull(target)
+    #Remove target variable
+    testing_set$target = NULL 
+    
+    ####################### Testing set
     if(stack){
       meta_learner = training[["Meta_learners"]]
-      prediction = compute.prediction.stacked(meta_learner, testing_set, target, training[["ML_models"]], training[["Base_models"]], return_roc = return, file_name = file_name)
+      prediction = compute.prediction.stacked(meta_learner, testing_set, target, training[["ML_models"]], training[["Base_models"]])
     }else{
       model = training[["Model"]] #Save best ML model based on the Accuracy from CV per partition
-      prediction = compute.prediction(model, testing_set, target, file_name = file_name, return_roc = return)
+      prediction = compute.prediction(model, testing_set, target)
     }
     
-    auc_score = prediction[["AUC"]]
     metrics = prediction[["Metrics"]]
     predictions = prediction[["Predictions"]]
     
     gc() #Clean garbage
     
-    return(list(Model = model, Prediction_metrics = metrics, AUC = auc_score))
+    return(list(Predictions = predictions, Prediction_metrics = metrics))
   }else{  #No features are selected as predictive
     
     gc() #Clean garbage
     
     return(NULL)
   }
-  
-}
-
-compute.h2o.automl = function(norm.counts, clinical, trait, trait.positive, deconvolution, tfs, trait.out, out, return = F){
-  
-  # LODO 
-  clinical = clinical %>%
-    mutate(trait.out = clinical[,trait.out]) ##Just a way to make work "filter" cause it does not allow "" variables (might change after)
-  
-  # Test variables
-  traitData_test = clinical %>%
-    filter(trait.out == out)
-  counts.normalized_test = norm.counts[,colnames(norm.counts)%in%rownames(traitData_test)]
-  deconv_test = deconvolution[rownames(deconvolution)%in%rownames(traitData_test),]
-  tfs_test = tfs[rownames(deconvolution)%in%rownames(traitData_test),]
-  
-  # Train variables
-  traitData_train = clinical %>%
-    filter(trait.out != out)
-  counts.normalized_train = norm.counts[,colnames(norm.counts)%in%rownames(traitData_train)]
-  tfs_train = tfs[rownames(deconvolution)%in%rownames(traitData_train),]
-  deconv_train = deconvolution[rownames(deconvolution)%in%rownames(traitData_train),]
-  
-  # CellTFusion 
-  network = compute.WTCNA(tfs_train, corr_mod = 0.9, clustering.method = "ward.D2", return = return) 
-  pathways = compute.pathway.activity(counts.normalized_train, paths = NULL)
-  tfs.modules.clusters = compute.TF.network.classification(network, pathways, return = return)
-  dt = compute.deconvolution.analysis(deconv_train, corr = 0.8, seed = 123)
-  corr_modules = compute.modules.relationship(network[[1]], dt[[1]], return = T, plot = return)
-  cell_dendrograms = identify.cell.groups(corr_modules, tfs.modules.clusters, height = 20, return = return)
-  cell.groups = cell.groups.computation(dt[[1]], tfs.module.network = network, cell.dendrograms = cell_dendrograms)  
-
-  #Training cohort
-  train_data = cell.groups[[1]] %>%
-    data.frame() %>%
-    mutate(Trait = traitData_train[,trait],
-           target = as.factor(ifelse(Trait == trait.positive, 'yes', 'no'))) %>%
-    dplyr::select(-Trait)
-  
-  # Install and load the h2o package
-  library(h2o)
-  
-  # Initialize the H2O cluster
-  h2o.init()
-  
-  # Convert the data to an H2O frame
-  data <- as.h2o(train_data)
-  
-  # Define the target variable and predictors
-  predictors <- setdiff(names(data), "target")  # all columns except target
-  
-  # Run AutoML for a maximum of 20 base models (increase as needed)
-  aml <- h2o.automl(
-    x = predictors,
-    y = "target",
-    training_frame = data,
-    nfolds = 5,  # Perform 5-fold cross-validation
-    max_models = 20,  # Set the number of models to test
-    seed = 1234       # Set seed for reproducibility
-  )
-  
-  # View the leaderboard (best models)
-  lb <- aml@leaderboard
-  print(lb)
-  
-  # Get the best model from the AutoML run
-  best_model <- aml@leader
-  cat("Best model found with AutoML:", best_model@algorithm, "\n")
-  
-  ##########Predictions
-  #Project cell groups in testing cohort
-  test_data = compute_cell_groups_signatures(dt, network, cell.groups, predictors, deconv_test, tfs_test) 
-  
-  # Convert the new data to an H2O frame
-  test_data_h2o <- as.h2o(test_data)
-  
-  # Predict with the best model
-  predictions <- as.data.frame(h2o.predict(best_model, test_data_h2o))
-  
-  #Extract groundtruth target variable
-  target = traitData_test %>%
-    mutate(target = ifelse(traitData_test[,trait] == trait.positive, "yes", "no")) %>%
-    pull(target)
-  
-  # Shut down H2O cluster 
-  h2o.shutdown(prompt = FALSE)
-  
-  sens_spec = get_roc_curve(predictions, target, "AutoML", return_roc = F)
-  
-  return(list("Results" = aml, "Prediction_metrics" = sens_spec))
   
 }
 
@@ -903,34 +597,34 @@ compute.bootstrap.ML = function(norm.counts, clinical, trait, trait.positive, de
   return(res)
 }
 
-compute_cv_accuracy = function(models, file_name = NULL, base_models = F, return = T){
+compute_cv_RMSE = function(models, file_name = NULL, base_models = F, return = T){
   
   #Bind accuracy values from each model
-  accuracy = list()
+  rmse = list()
   for (i in 1:length(models)){
-    accuracy[[i]] = models[[i]]$resample %>% 
+    rmse[[i]] = models[[i]]$resample %>% 
       mutate(model = names(models)[i])
-    names(accuracy)[i] = names(models)[i]
+    names(rmse)[i] = names(models)[i]
   }
-  accuracy_data = do.call(rbind, accuracy)
+  rmse_data = do.call(rbind, rmse)
   
   #Retrieve top model based on accuracy
-  res_accuracy <- accuracy_data %>%
+  res_rmse <- rmse_data %>%
     group_by(model) %>%
-    summarise(Accuracy = mean(Accuracy)) %>%
-    arrange(desc(Accuracy)) 
+    summarise(RMSE = mean(RMSE)) %>%
+    arrange(RMSE)  # Arrange in ascending order to get min RMSE
   
-  top_model = res_accuracy %>%
-    slice(1) %>%
+  top_model <- res_rmse %>%
+    slice_head(n = 1) %>%
     pull(model)
   
   if(return){
-    pdf(paste0("Results/Accuracy_CV_methods_", file_name, ".pdf"), width = 10)
-    plot(ggplot(accuracy_data, aes(x = model, y = Accuracy, fill = model)) +
+    pdf(paste0("Results/RMSE_CV_methods_", file_name, ".pdf"), width = 10)
+    plot(ggplot(rmse_data, aes(x = model, y = RMSE, fill = model)) +
            geom_boxplot() +
-           labs(title = "Distribution of Accuracy Values by Model",
+           labs(title = "Distribution of RMSE by Model",
                 x = "Model",
-                y = "Accuracy") +
+                y = "RMSE") +
            theme_minimal() +
            theme(legend.position = "none"))
     dev.off()
@@ -938,11 +632,11 @@ compute_cv_accuracy = function(models, file_name = NULL, base_models = F, return
   
   if(base_models == T){
     cat("Choosing base models for stacking.......................................\n\n")
-    base_models = choose_base_models(models, metric = "Accuracy")
+    base_models = choose_base_models(models, metric = "RMSE")
     cat("Models chosen are:", paste0(base_models, collapse = ", "), "\n\n")
-    return(list("Accuracy" = res_accuracy, "Top_model" = top_model, "Base_models" = base_models))
+    return(list("RMSE" = res_rmse, "Top_model" = top_model, "Base_models" = base_models))
   }else{
-    return(list("Accuracy" = res_accuracy, "Top_model" = top_model))
+    return(list("RMSE" = res_rmse, "Top_model" = top_model))
   }
   
 }
@@ -993,7 +687,7 @@ compute_cv_AUC = function(models, file_name = NULL, base_models = F, return = T)
 
 choose_base_models = function(models, metric = "Accuracy"){
   
-  #Bind accuracy values from each model
+  #Bind metrics values from each model
   resample_df = list()
   for (i in 1:length(models)){
     resample_df[[i]] = models[[i]]$resample %>% 
@@ -1001,12 +695,6 @@ choose_base_models = function(models, metric = "Accuracy"){
     names(resample_df)[i] = names(models)[i]
   }
   resample_df = do.call(rbind, resample_df)
-  
-  #Prepare data frame for ploting
-  resample_df <- resample_df %>%
-    group_by(model) %>%
-    summarise(Accuracy = mean(Accuracy),
-              AUC = mean(AUC)) 
   
   resample_df <- resample_df %>%
     mutate(Category = case_when(
@@ -1017,20 +705,46 @@ choose_base_models = function(models, metric = "Accuracy"){
     ))
   
   if(metric == "Accuracy"){
+    #Prepare data frame for ploting
+    resample_df <- resample_df %>%
+      group_by(model) %>%
+      summarise(Category = unique(Category)[1],    # Keeps the first occurrence of Category for each model
+                Accuracy = mean(Accuracy, na.rm = TRUE), # Calculates the mean RMSE
+                .groups = 'drop')  # Drops the grouping after summarization
+    
     groupped_df <- resample_df %>%
       group_by(Category) %>%
       filter(Accuracy == max(Accuracy)) %>%
       ungroup()     
+    
   }else if(metric == "AUC"){
+    #Prepare data frame for ploting
+    resample_df <- resample_df %>%
+      group_by(model) %>%
+      summarise(Category = unique(Category)[1],    # Keeps the first occurrence of Category for each model
+                AUC = mean(AUC, na.rm = TRUE), # Calculates the mean RMSE
+                .groups = 'drop')  # Drops the grouping after summarization
+    
     groupped_df <- resample_df %>%
       group_by(Category) %>%
       filter(AUC == max(AUC)) %>%
       ungroup()     
-  }else{
-    stop("No metric defined")
+    
+  }else if(metric == "RMSE"){
+    #Prepare data frame for ploting
+    resample_df <- resample_df %>%
+      group_by(model) %>%
+      summarise(Category = unique(Category)[1],    # Keeps the first occurrence of Category for each model
+                RMSE = mean(RMSE, na.rm = TRUE), # Calculates the mean RMSE
+                .groups = 'drop')  # Drops the grouping after summarization
+    
+    groupped_df <- resample_df %>%
+      group_by(Category) %>%
+      filter(RMSE == min(RMSE)) %>% #Take the model with the min RMSE per category
+      ungroup()     
   }
  
-  #Retrieve top model based on accuracy/auc
+  #Retrieve top model based on accuracy/auc/rmse
   base_models <- groupped_df %>%
     pull(model)
   
@@ -1155,72 +869,117 @@ calculate_auc <- function(fpr, tpr) {
   
 }
 
-compute.prediction = function(model, test_data, target, file_name, return_roc = T){
+compute.prediction = function(model, test_data, target){
   
   cat("Predicting target variable using provided ML model")
   
-  features <- colnames(test_data)
-  are_equal = setequal(model[["coefnames"]], features)
-  if(are_equal == T){
-    predict <- data.frame(predict(model, test_data, type = "prob"))
-    if(!return_roc){
-      prediction_res = get_roc_curve(predict, target, model$method, return_roc = F)
-      sens_spec = prediction_res[[1]]
-      auc = prediction_res[[2]]  
-      return(list(Metrics = sens_spec, AUC = auc))    
-    }else{
-      prediction_res = get_roc_curve(predict, target, model$method, return_roc = F)
-      sens_spec = prediction_res[[1]]
-      auc = prediction_res[[2]] 
-      
-      #TO FIX
-      # pdf(paste0("Results/ROC_prediction_", file_name), onefile=F)
-      # auc = roc(target, predict$yes, plot = T, legacy.axes = TRUE)$auc  #Using pROC
-      # dev.off()
-      
-      return(list(Metrics = sens_spec, AUC = auc, Predictions = predict))
-    }
-  }else{
-    message("Testing set does not count with the same features as model")
-  }
+  predict <- as.numeric(predict(model, test_data))
+
+  prediction_res = evaluate_prediction(predict, target)
+
+  return(list(Metrics = prediction_res, Predictions = prediction_res))
 }
 
-compute.prediction.stacked = function(super.learner, test_data, target, ml.models, base.models, return_roc, file_name = NULL){
+compute.prediction.stacked = function(super.learner, test_data, target, ml.models, base.models){
   
   #Learning from simple meta-learner
   base_predictions = list()
   for (i in 1:length(base.models)) {
-    base_predictions[[i]] = predict(ml.models[[base.models[i]]], test_data, type = "prob")$yes
+    base_predictions[[i]] = predict(ml.models[[base.models[i]]], test_data)
     names(base_predictions)[i] = base.models[i]
   }
   
   base_predictions = do.call(cbind, base_predictions)
   
-  prediction_simple = data.frame(predict(super.learner[["simple"]], base_predictions, type = "prob")) 
+  prediction_simple = as.numeric(predict(super.learner[["simple"]], base_predictions)) 
   
   #Learning from simple meta-learner
   all_predictions = list()
   for (i in 1:length(ml.models)) {
-    all_predictions[[i]] = predict(ml.models[[i]], test_data, type = "prob")$yes
+    all_predictions[[i]] = predict(ml.models[[i]], test_data)
     names(all_predictions)[i] = names(ml.models)[i]
   }
   
   all_predictions = do.call(cbind, all_predictions)
   
-  prediction_all = data.frame(predict(super.learner[["all"]], all_predictions, type = "prob")) 
+  prediction_all = as.numeric(predict(super.learner[["all"]], all_predictions)) 
   
   #Metrics
-  prediction_res_simple = get_roc_curve(prediction_simple, target, "Meta-learner_simple", return_roc = F)
-  sens_spec_simple = prediction_res_simple[[1]]
-  auc_simple = prediction_res_simple[[2]]  
-  
-  prediction_res_all = get_roc_curve(prediction_all, target, "Meta-learner_all", return_roc = F)
-  sens_spec_all = prediction_res_all[[1]]
-  auc_all = prediction_res_all[[2]]  
-  
-  return(list(Metrics = list("Simple" = sens_spec_simple, "All" = sens_spec_all), AUC = list("Simple" = auc_simple, "All" = auc_all), Predictions = list("Simple" = prediction_simple, "All" = prediction_all)))    
+  prediction_res_simple = evaluate_prediction(prediction_simple, target)
+  prediction_res_all = evaluate_prediction(prediction_all, target)
+
+  return(list(Metrics = list("Simple" = prediction_res_simple, "All" = prediction_res_all), Predictions = list("Simple" = prediction_simple, "All" = prediction_all)))    
   
 }
+
+evaluate_prediction = function(predicted, observed){
+
+  ######Metrics
+  
+  # Calculate RMSE
+  rmse <- sqrt(mean((observed - predicted)^2))
+  
+  # Calculate MAE
+  mae <- mean(abs(observed - predicted))
+  
+  # Calculate R-squared
+  ss_res <- sum((observed - predicted) ^ 2)
+  ss_tot <- sum((observed - mean(observed)) ^ 2)
+  r_squared <- 1 - (ss_res / ss_tot)
+  
+  metrics = data.frame(RMSE = rmse,
+                       MAE = mae,
+                       R_square = r_squared)
+  
+  data <- data.frame(
+    Actual = observed,
+    Predicted = predicted
+  )
+  
+  # Fit a linear regression model
+  model <- lm(Actual ~ Predicted, data = data)
+  
+  # Regression plot
+  p1 <- ggplot(data, aes(x = Predicted, y = Actual)) +
+    geom_point(color = 'blue', size = 2, alpha = 0.6) +  # Scatter plot
+    geom_smooth(method = 'lm', color = 'red', se = FALSE, linetype = "dashed") +  # Regression line
+    labs(title = 'Regression Plot', x = 'Predicted Values', y = 'Actual Values') +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12)
+    ) +
+    annotate("text", x = max(data$Predicted) * 0.1, y = max(data$Actual) * 0.8,
+             label = paste("RMSE:", round(rmse, 2)), color = "black", size = 4, hjust = 0) +
+    annotate("text", x = max(data$Predicted) * 0.1, y = max(data$Actual) * 0.7,
+             label = paste("R-squared:", round(r_squared, 3)), color = "black", size = 4, hjust = 0)
+  
+  print(p1)
+  
+  # Residuals analysis
+  data$residuals <- residuals(model)
+  
+  p2 <- ggplot(data, aes(x = Predicted, y = residuals)) +
+    geom_point(color = 'green', alpha = 0.6, size = 2) +  # Residuals scatter plot
+    geom_hline(yintercept = 0, linetype = "dashed", color = "red") +  # Horizontal line at y=0
+    labs(title = 'Residuals Plot', 
+         x = 'Predicted Values', 
+         y = 'Residuals',
+         subtitle = paste("Mean of Residuals =", round(mean(data$residuals), 2))) +  # Mean as subtitle
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+      plot.subtitle = element_text(hjust = 0.5, size = 12),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12)
+    )
+  
+  print(p2)
+  
+  return(metrics)
+}
+
 
 calculate_accuracy <- function(metrics, target) {
   sensitivity = metrics[,"sensitivity"]

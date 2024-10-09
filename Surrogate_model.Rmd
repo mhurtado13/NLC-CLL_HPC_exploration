@@ -30,4 +30,23 @@ training_set = data[index,]
 testing_set = data[-index,]
 ```
 
+Simulate dataset
+```{r}
+# Generate 60 samples with 10 features (random normal values)
+features <- as.data.frame(matrix(rnorm(4000 * 10), nrow = 4000, ncol = 10))
+
+# Name the feature columns
+colnames(features) <- paste0("feature_", 1:10)
+
+# Generate the target column (random normal values)
+features$target <- rnorm(4000)
+
+x = compute.ML(features, "target", 0.8, stack = T, seed = 123, file_name = "Test")
+```
+
+ML models
+```{r}
+
+```
+
 
