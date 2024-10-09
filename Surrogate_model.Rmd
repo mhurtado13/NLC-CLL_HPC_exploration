@@ -12,6 +12,22 @@ source("ML_functions.R")
 
 Read Sobol samples 
 ```{r}
-
+sobol_samples = read.csv('Physicell_NLCs-CLL/data_output/Parameter_exploration/samples/Samples_0.csv')
+viability = read.csv('Physicell_NLCs-CLL/data_output/Parameter_exploration/results/viability_1.csv')
 ```
+
+Set data
+```{r}
+time_point = 1
+data = sobol_samples %>%
+  mutate(target = as.numeric(t(viability[time_point,])))
+```
+
+Set training and testing set
+```{r}
+index = createDataPartition(data[,"target"], times = 1, p = 0.8, list = FALSE) 
+training_set = data[index,]
+testing_set = data[-index,]
+```
+
 
