@@ -1,0 +1,7 @@
+{
+    "installOptions": {
+        "installFromRepository": true,
+        "libraryPath": "/home/marcelo/Documents/NLC-CLL_HPC_exploration/renv/library/R-4.3/x86_64-pc-linux-gnu",
+        "installDependencies": true
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "id": "F17BCBA8",
+    "path": "~/Documents/NLC-CLL_HPC_exploration/ML_functions.R",
+    "project_path": "ML_functions.R",
+    "type": "r_source",
+    "hash": "1923014149",
+    "contents": "",
+    "dirty": false,
+    "created": 1728462186788.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "26,0",
+        "scrollLine": "0"
+    },
+    "folds": "247|196|480|0|\n",
+    "lastKnownWriteTime": 1728473992,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1728473992524,
+    "read_only": false,
+    "read_only_alternatives": []
+}

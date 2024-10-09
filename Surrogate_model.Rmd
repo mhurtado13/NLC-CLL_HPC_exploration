@@ -1,0 +1,17 @@
+---
+title: "Surrogate_model"
+author: "Marcelo Hurtado"
+date: "2024-10-09"
+output: html_document
+---
+
+Load ML functions
+```{r setup, include=FALSE}
+source("ML_functions.R")
+```
+
+Read Sobol samples 
+```{r}
+
+```
+
