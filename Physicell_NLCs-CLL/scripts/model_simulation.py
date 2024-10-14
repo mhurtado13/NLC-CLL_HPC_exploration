@@ -33,7 +33,7 @@ def simulate_model(input_file_path, replicates, node, process, *args):
 
     xml_file = config_node + "/configuration_file_" + str(process) + ".xml"
 
-    '''
+    
     ### All parameters
     param_behaviors = {'cancer':{'uptake_rate': 0, 'secretion_rate': 1, 'speed': 2, 'transformation_rate': 3, 'relative_maximum_adhesion_distance': 4, 'cell_adhesion_affinity': 5},
                     'monocytes':{'speed': 6, 'transformation_rate': 7, 'phagocytosis_rate': 8}, 
@@ -41,14 +41,15 @@ def simulate_model(input_file_path, replicates, node, process, *args):
                     'NLCs': {'speed': 14, 'phagocytosis_rate': 15},
                     'apoptotic':{'secretion_rate':16, 'speed':17, 'transformation_rate': 18},
                     'dead':{'secretion_rate': 19}}
-    '''
 
+    '''
     param_behaviors = {'cancer':{'secretion_rate': 0, 'speed': 1, 'transformation_rate': 2},
                     'monocytes':{'speed': 3, 'transformation_rate': 4}, 
                     'macrophages':{'relative_maximum_adhesion_distance': 5},
                     'NLCs': {'speed': 6},
                     'apoptotic':{'speed':7}}
-        
+    '''
+                        
     for i, celltype in enumerate(param_behaviors.keys()): #i = number of keys name and celltype = cell type
         for param, column in param_behaviors[celltype].items(): #param = parameter name and column = column number
             if celltype == 'cancer' and param == 'uptake_rate':
