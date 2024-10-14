@@ -13,7 +13,7 @@ def simulate_model(input_file_path, replicates, node, process, *args):
     errors = []
     tree = ET.parse(input_file_path) #Load original xml file
     root = tree.getroot()
-    print("Running simulation with parameters " + str(values) + " in task number " + str(process) + " using node " + str(node))
+    print("Running simulation with parameters " + str(values) + " in task number " + str(process) + " using node " + str(node) + "\n")
 
     #Creating folder for each node
     output_node = "output/output_node_" + str(node)
@@ -126,20 +126,20 @@ def simulate_model(input_file_path, replicates, node, process, *args):
                 file.write(updated_xml_str)
 
             # Call the C++ software using subprocess
-            print("Running model in task " + str(process))
+            print("Running model in task " + str(process) + "\n")
             with subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
                 stdout, stderr = proc.communicate()
 
             # Check that the Physicell ran successfully
             if proc.returncode != 0:
-                print("Error running Physicell")
+                print("Error running Physicell\n")
                 print(stderr)
                 errors.append(values)
                 terminate = True
                 break #exit loop to avoid running all replicates if there is an error in simulation 
 
             if terminate == False:
-                print("Collecting data in task " + str(process))
+                print("Collecting data in task " + str(process) + "\n")
                 res = collect(output_folder, xml_file, node) #We collect the data at each iteration
                 data = pd.concat([res, data], axis=1)
         
@@ -147,11 +147,11 @@ def simulate_model(input_file_path, replicates, node, process, *args):
           
     if terminate == False:
         viability, concentration = merge(data) #Merge data of replicates 
-        print("Physicell simulation for task " + str(process) + " with parameters " + str(values) + " in node " + str(node) + " completed succesfully! :)")
+        print("Physicell simulation for task " + str(process) + " with parameters " + str(values) + " in node " + str(node) + " completed succesfully! :)\n")
     else:
         viability = pd.Series([0] * 10)
         concentration = pd.Series([0] * 10)
-        print("Physicell simulation for task " + str(process) + " with parameters " + str(values) + " in node " + str(node) + " did not run succesfully... completing with 0s")
+        print("Physicell simulation for task " + str(process) + " with parameters " + str(values) + " in node " + str(node) + " did not run succesfully... completing with 0s\n")
 
     #Clean memory
     shutil.rmtree(output_folder) #Remove output folder for each task when it is done 

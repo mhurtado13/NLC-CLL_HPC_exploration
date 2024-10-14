@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=NLC-CLL-Sensitivity-node1
+#SBATCH --job-name=NLC-CLL-Sensitivity-test
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=128
@@ -11,9 +11,9 @@
 #SBATCH -e /home/mhurtado/work/NLC-CLL_HPC_exploration/Physicell_NLCs-CLL/logs/Sensitivity/%x.e
 
 #Define file of samples to run exploration
-FILE="data_output/Sensitivity_analysis/samples/Samples_0.csv"
+FILE="data_output/Sensitivity_analysis/samples/Samples_test.csv"
 #Define the number of tasks running in parallel
-NUM_TASKS=2
+NUM_TASKS=32
 #Define the number replicates for bootstrapping 
 NUM_REPLICATES=5
 #Specify which node to use
