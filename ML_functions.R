@@ -248,10 +248,41 @@ computed.boruta.kfolds = function(folds, data_model, boruta_iterations, fix_boru
     
 }
 
-polynomial_model = function(data, target){
-  model = lm(target ~ poly(., degree = 2), data = data)
-  return(model)
-}
+# polynomial_model = function(data, target){
+#   model = lm(target ~ poly(., degree = 2), data = data)
+#   return(model)
+# }
+
+polynomial_model <- list(
+  type = "Regression",
+  library = NULL,  # No need to load any external libraries
+  loop = NULL,
+  
+  # Define the hyperparameter grid (polynomial degree)
+  parameters = data.frame(
+    parameter = 'degree', 
+    class = 'numeric', 
+    label = 'Polynomial Degree'
+  ),
+  
+  # Grid function for tuning the polynomial degree
+  grid = function(x, y, len = NULL, search = "grid") {
+    data.frame(degree = seq(1, 5, by = 1))  # Tune degrees from 1 to 5
+  },
+  
+  # Fitting function: applies polynomial regression
+  fit = function(x, y, wts, param, lev, last, classProbs, ...) {
+    lm(y ~ poly(as.matrix(x), degree = param$degree))
+  },
+  
+  # Predict function: predicts based on the model
+  predict = function(modelFit, newdata, submodels = NULL) {
+    predict(modelFit, as.matrix(newdata))
+  },
+  
+  # We don't need probability predictions for regression
+  prob = NULL
+)
 
 gaussian_process_model = function(data, target){
   model = gausspr(target ~ ., data = data)
@@ -270,13 +301,13 @@ compute_surrogate_models = function(train_data, k_folds, n_rep, file_name = NULL
   metric <- "RMSE" #metric to use for selecting best methods (default: Accuracy -- for AUC see below and parameter must be equal to cv_metric = "AUC")
   
   ### Stratify K fold cross-validation 
-  multifolds <- createMultiFolds(train_data[,'target'], k = k_folds, times = n_rep) #repeated folds
-  trainControl <- trainControl(index = multifolds, method="repeatedcv", number=k_folds, repeats=n_rep, verboseIter = F, allowParallel = F, savePredictions=T)
+  multifolds <- createMultiFolds(train_data[,'target'], k = k_folds, times = 1) #repeated folds
+  trainControl <- trainControl(index = multifolds, method="repeatedcv", number=k_folds, repeats=1, verboseIter = F, allowParallel = F, savePredictions=T)
   
   ################## Polynomial
   fit.polynomial <- train(target~., data = train_data, method = polynomial_model, metric = metric, trControl = trainControl) 
-  predictions.polynomial <- data.frame(Polynomial = predict(fit.polynomial, newdata = train_data))
-  
+  predictions.polynomial <- data.frame(Polynomial = predict(polynomial_fit, newdata = train_data))
+  polynomial_fit <- train(target ~ ., data = train_data, method = polynomial_model, metric = metric, trControl = trainControl, tuneLength = 2)
   ################## Gaussian
   fit.gaussian <- train(target~., data = train_data, method = gaussian_process_model, metric = metric,trControl = trainControl)
   predictions.gaussian = data.frame(Gaussian = predict(fit.gaussian, newdata = train_data))
@@ -328,7 +359,7 @@ compute.RMSE_k_fold_CV = function(train_data, k_folds, n_rep, stacking = F, file
   ######### Stratify K fold cross-validation 
   #folds <- createFolds(train_data[,'target'], k = k_folds, returnTrain = T, list = T) #this for single folds
   multifolds <- createMultiFolds(train_data[,'target'], k = k_folds, times = n_rep) #repeated folds
-  trainControl <- trainControl(index = multifolds, method="repeatedcv", number=k_folds, repeats=n_rep, verboseIter = F, allowParallel = F, savePredictions=T)
+  trainControl <- trainControl(index = multifolds, method="repeatedcv", number=k_folds, repeats=n_rep, verboseIter = F, allowParallel = F)
   
   ##################################################### ML models
   ################## Bagged CART

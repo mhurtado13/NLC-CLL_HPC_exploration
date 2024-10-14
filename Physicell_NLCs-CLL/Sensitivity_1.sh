@@ -13,7 +13,7 @@
 #Define file of samples to run exploration
 FILE="data_output/Sensitivity_analysis/samples/Samples_0.csv"
 #Define the number of tasks running in parallel
-NUM_TASKS=32
+NUM_TASKS=2
 #Define the number replicates for bootstrapping 
 NUM_REPLICATES=5
 #Specify which node to use

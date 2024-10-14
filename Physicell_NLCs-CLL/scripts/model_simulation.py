@@ -126,6 +126,7 @@ def simulate_model(input_file_path, replicates, node, process, *args):
                 file.write(updated_xml_str)
 
             # Call the C++ software using subprocess
+            print("Running model in task " + str(process))
             with subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
                 stdout, stderr = proc.communicate()
 
