@@ -19,7 +19,7 @@ NUM_REPLICATES=5
 #Specify which node to use
 NODE=2
 
-python scripts/run_model.py $FILE $NUM_TASKS $NUM_REPLICATES $NODE
+python -u scripts/run_model.py $FILE $NUM_TASKS $NUM_REPLICATES $NODE
 
 #Before running this, run in the console: python param_sensitivity.py $NUM_SAMPLES $NUM_NODES
 #Remember for Sobol: N*(2D + 2)  simulations N = 512

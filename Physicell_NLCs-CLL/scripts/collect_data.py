@@ -10,7 +10,7 @@ def collect(dir_output, config_file, node):
     error_folder = "error/error_node_" + str(node)
     os.makedirs(error_folder, exist_ok=True)
 
-    mcdsts = pcdl.TimeSeries(dir_output, settingxml=config_file, verbose = False) 
+    mcdsts = pcdl.TimeSeries(dir_output, settingxml=config_file, verbose = False, microenv=False, graph=False) 
     timesteps = mcdsts.get_mcds_list()
 
     #Extract positions corresponding to days 1-13
