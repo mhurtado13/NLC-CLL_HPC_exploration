@@ -19,7 +19,7 @@ def sobol_sampling(nsamples):
                       'relative_maximum_adhesion_distance_macrophages': 0, 'speed_NLCs': 1.0, 'speed_apoptotic': 1.0}
     
     'bounds': np.array([[0, 0, 3e-7, 0, 95e-7, 0, 0, 0],
-                            [3, 3, 3e-3, 3, 95e-3, 3, 3, 3]]).T 
+                        [3, 3, 3e-3, 3, 95e-3, 3, 3, 3]]).T 
     '''
 
 
