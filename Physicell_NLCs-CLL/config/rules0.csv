@@ -1,3 +1,0 @@
-macrophages,cancer-signal,increases,transform to NLCs,2e-4,1,4,0
-NLCs,contact with cancer,increases,anti-apoptotic factor secretion,1.0,5e-1,4,0
-cancer,anti-apoptotic factor,decreases,transform to apoptotic,3e-07,5e-1,20,0
