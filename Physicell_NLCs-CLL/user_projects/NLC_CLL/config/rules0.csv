@@ -1,0 +1,15 @@
+cancer,contact with NLCs,decreases,migration speed,0,0.5,10,0
+monocytes,stress,increases,phagocytose apoptotic,5,5,8,0
+monocytes,stress,increases,phagocytose dead,5,5,8,0
+macrophages,stress,increases,phagocytose apoptotic,20,5,8,0
+macrophages,stress,increases,phagocytose dead,20,5,8,0
+NLCs,stress,increases,phagocytose apoptotic,2,5,8,0
+NLCs,stress,increases,phagocytose dead,2,5,8,0
+cancer,damage,increases,transform to apoptotic,8e-4,0.5,4,0
+NLCs,contact with cancer,increases,antiapoptotic secretion,5,1,50,0
+cancer,antiapoptotic,decreases,transform to apoptotic,8e-10,25e-1,10,0
+monocytes,cytokines,increases,transform to macrophages,3e-4,5,5,0
+monocytes,intracellular stress,increases,transform to NLCs,6e-1,3200,10,0
+macrophages,intracellular stress,increases,transform to NLCs,1,3200,10,0
+monocytes,intracellular cytokines,increases,transform to NLCs,10e-5,25e3,10,0
+macrophages,intracellular cytokines,increases,transform to NLCs,10e-5,25e3,10,0

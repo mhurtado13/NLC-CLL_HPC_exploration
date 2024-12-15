@@ -36,7 +36,7 @@
             <interval units="min">60</interval>
             <enable>true</enable>
             <plot_substrate enabled="false" limits="false">
-                <substrate>anti-apoptotic factor</substrate>
+                <substrate>antiapoptotic</substrate>
                 <min_conc />
                 <max_conc />
             </plot_substrate>
@@ -53,9 +53,9 @@
     </options>
 
     <microenvironment_setup>
-        <variable name="anti-apoptotic factor" units="dimensionless" ID="0">
+        <variable name="cytokines" units="dimensionless" ID="0">
             <physical_parameter_set>
-                <diffusion_coefficient units="micron^2/min">1</diffusion_coefficient>
+                <diffusion_coefficient units="micron^2/min">11000</diffusion_coefficient>
                 <decay_rate units="1/min">0.0</decay_rate>
             </physical_parameter_set>
             <initial_condition units="dimensionless">0.0</initial_condition>
@@ -69,9 +69,25 @@
                 <boundary_value ID="zmax" enabled="False" />
             </Dirichlet_options>
         </variable>
-        <variable name="dead substrate" units="dimensionless" ID="1">
+        <variable name="antiapoptotic" units="dimensionless" ID="1">
             <physical_parameter_set>
-                <diffusion_coefficient units="micron^2/min">1</diffusion_coefficient>
+                <diffusion_coefficient units="micron^2/min">12000</diffusion_coefficient>
+                <decay_rate units="1/min">0</decay_rate>
+            </physical_parameter_set>
+            <initial_condition units="dimensionless">0.0</initial_condition>
+            <Dirichlet_boundary_condition units="dimensionless" enabled="False">0.0</Dirichlet_boundary_condition>
+            <Dirichlet_options>
+                <boundary_value ID="xmin" enabled="False" />
+                <boundary_value ID="xmax" enabled="False" />
+                <boundary_value ID="ymin" enabled="False" />
+                <boundary_value ID="ymax" enabled="False" />
+                <boundary_value ID="zmin" enabled="False" />
+                <boundary_value ID="zmax" enabled="False" />
+            </Dirichlet_options>
+        </variable>
+        <variable name="stress" units="dimensionless" ID="2">
+            <physical_parameter_set>
+                <diffusion_coefficient units="micron^2/min">10000</diffusion_coefficient>
                 <decay_rate units="1/min">0</decay_rate>
             </physical_parameter_set>
             <initial_condition units="dimensionless">0.0</initial_condition>
@@ -148,16 +164,16 @@
                     <relative_rupture_volume units="dimensionless">2</relative_rupture_volume>
                 </volume>
                 <mechanics>
-                    <cell_cell_adhesion_strength units="micron/min">0.4</cell_cell_adhesion_strength>
-                    <cell_cell_repulsion_strength units="micron/min">10</cell_cell_repulsion_strength>
+                    <cell_cell_adhesion_strength units="micron/min">0</cell_cell_adhesion_strength>
+                    <cell_cell_repulsion_strength units="micron/min">30</cell_cell_repulsion_strength>
                     <relative_maximum_adhesion_distance units="dimensionless">1.25</relative_maximum_adhesion_distance>
                     <cell_adhesion_affinities>
-                        <cell_adhesion_affinity name="cancer">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="monocytes">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="macrophages">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="NLCs">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="apoptotic">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="dead">0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="cancer">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="monocytes">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="macrophages">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="NLCs">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="apoptotic">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="dead">1.0</cell_adhesion_affinity>
                     </cell_adhesion_affinities>
                     <options>
                         <set_relative_equilibrium_distance enabled="false" units="dimensionless">1.8</set_relative_equilibrium_distance>
@@ -168,35 +184,42 @@
                     <detachment_rate units="1/min">0.0</detachment_rate>
                 </mechanics>
                 <motility>
-                    <speed units="micron/min">5</speed>
-                    <persistence_time units="min">1</persistence_time>
-                    <migration_bias units="dimensionless">.05</migration_bias>
+                    <speed units="micron/min">2</speed>
+                    <persistence_time units="min">5</persistence_time>
+                    <migration_bias units="dimensionless">5e-2</migration_bias>
                     <options>
                         <enabled>true</enabled>
                         <use_2D>true</use_2D>
                         <chemotaxis>
                             <enabled>true</enabled>
-                            <substrate>anti-apoptotic factor</substrate>
+                            <substrate>antiapoptotic</substrate>
                             <direction>1</direction>
                         </chemotaxis>
                         <advanced_chemotaxis>
                             <enabled>false</enabled>
                             <normalize_each_gradient>false</normalize_each_gradient>
                             <chemotactic_sensitivities>
-                                <chemotactic_sensitivity substrate="anti-apoptotic factor">0.0</chemotactic_sensitivity>
-                                <chemotactic_sensitivity substrate="dead substrate">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="cytokines">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="antiapoptotic">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="stress">0.0</chemotactic_sensitivity>
                             </chemotactic_sensitivities>
                         </advanced_chemotaxis>
                     </options>
                 </motility>
                 <secretion>
-                    <substrate name="anti-apoptotic factor">
+                    <substrate name="cytokines">
+                        <secretion_rate units="1/min">1e-1</secretion_rate>
+                        <secretion_target units="substrate density">10</secretion_target>
+                        <uptake_rate units="1/min">0.0</uptake_rate>
+                        <net_export_rate units="total substrate/min">0.0</net_export_rate>
+                    </substrate>
+                    <substrate name="antiapoptotic">
                         <secretion_rate units="1/min">0.0</secretion_rate>
                         <secretion_target units="substrate density">0</secretion_target>
                         <uptake_rate units="1/min">1</uptake_rate>
                         <net_export_rate units="total substrate/min">0.0</net_export_rate>
                     </substrate>
-                    <substrate name="dead substrate">
+                    <substrate name="stress">
                         <secretion_rate units="1/min">0.0</secretion_rate>
                         <secretion_target units="substrate density">0</secretion_target>
                         <uptake_rate units="1/min">0.0</uptake_rate>
@@ -295,16 +318,16 @@
                     <relative_rupture_volume units="dimensionless">2</relative_rupture_volume>
                 </volume>
                 <mechanics>
-                    <cell_cell_adhesion_strength units="micron/min">4e-1</cell_cell_adhesion_strength>
-                    <cell_cell_repulsion_strength units="micron/min">10</cell_cell_repulsion_strength>
+                    <cell_cell_adhesion_strength units="micron/min">0</cell_cell_adhesion_strength>
+                    <cell_cell_repulsion_strength units="micron/min">30</cell_cell_repulsion_strength>
                     <relative_maximum_adhesion_distance units="dimensionless">1.25</relative_maximum_adhesion_distance>
                     <cell_adhesion_affinities>
                         <cell_adhesion_affinity name="cancer">1.0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="monocytes">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="macrophages">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="NLCs">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="apoptotic">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="dead">0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="monocytes">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="macrophages">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="NLCs">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="apoptotic">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="dead">1.0</cell_adhesion_affinity>
                     </cell_adhesion_affinities>
                     <options>
                         <set_relative_equilibrium_distance enabled="false" units="dimensionless">1.8</set_relative_equilibrium_distance>
@@ -316,37 +339,44 @@
                 </mechanics>
                 <motility>
                     <speed units="micron/min">1e-1</speed>
-                    <persistence_time units="min">1</persistence_time>
-                    <migration_bias units="dimensionless">.05</migration_bias>
+                    <persistence_time units="min">5</persistence_time>
+                    <migration_bias units="dimensionless">.8</migration_bias>
                     <options>
                         <enabled>true</enabled>
                         <use_2D>true</use_2D>
                         <chemotaxis>
                             <enabled>true</enabled>
-                            <substrate>dead substrate</substrate>
+                            <substrate>stress</substrate>
                             <direction>1</direction>
                         </chemotaxis>
                         <advanced_chemotaxis>
                             <enabled>false</enabled>
                             <normalize_each_gradient>false</normalize_each_gradient>
                             <chemotactic_sensitivities>
-                                <chemotactic_sensitivity substrate="anti-apoptotic factor">0.0</chemotactic_sensitivity>
-                                <chemotactic_sensitivity substrate="dead substrate">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="cytokines">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="antiapoptotic">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="stress">0.0</chemotactic_sensitivity>
                             </chemotactic_sensitivities>
                         </advanced_chemotaxis>
                     </options>
                 </motility>
                 <secretion>
-                    <substrate name="anti-apoptotic factor">
+                    <substrate name="cytokines">
+                        <secretion_rate units="1/min">0.0</secretion_rate>
+                        <secretion_target units="substrate density">0.0</secretion_target>
+                        <uptake_rate units="1/min">1</uptake_rate>
+                        <net_export_rate units="total substrate/min">0.0</net_export_rate>
+                    </substrate>
+                    <substrate name="antiapoptotic">
                         <secretion_rate units="1/min">0.0</secretion_rate>
                         <secretion_target units="substrate density">0.0</secretion_target>
                         <uptake_rate units="1/min">0.0</uptake_rate>
                         <net_export_rate units="total substrate/min">0.0</net_export_rate>
                     </substrate>
-                    <substrate name="dead substrate">
+                    <substrate name="stress">
                         <secretion_rate units="1/min">0.0</secretion_rate>
                         <secretion_target units="substrate density">0.0</secretion_target>
-                        <uptake_rate units="1/min">0.0</uptake_rate>
+                        <uptake_rate units="1/min">1</uptake_rate>
                         <net_export_rate units="total substrate/min">0.0</net_export_rate>
                     </substrate>
                 </secretion>
@@ -382,8 +412,8 @@
                     <transformation_rates>
                         <transformation_rate name="cancer" units="1/min">0.0</transformation_rate>
                         <transformation_rate name="monocytes" units="1/min">0.0</transformation_rate>
-                        <transformation_rate name="macrophages" units="1/min">2270e-7</transformation_rate>
-                        <transformation_rate name="NLCs" units="1/min">0.0</transformation_rate>
+                        <transformation_rate name="macrophages" units="1/min">2e-12</transformation_rate>
+                        <transformation_rate name="NLCs" units="1/min">3e-15</transformation_rate>
                         <transformation_rate name="apoptotic" units="1/min">0.0</transformation_rate>
                         <transformation_rate name="dead" units="1/min">0.0</transformation_rate>
                     </transformation_rates>
@@ -442,16 +472,16 @@
                     <relative_rupture_volume units="dimensionless">2</relative_rupture_volume>
                 </volume>
                 <mechanics>
-                    <cell_cell_adhesion_strength units="micron/min">4e-1</cell_cell_adhesion_strength>
-                    <cell_cell_repulsion_strength units="micron/min">10</cell_cell_repulsion_strength>
+                    <cell_cell_adhesion_strength units="micron/min">0</cell_cell_adhesion_strength>
+                    <cell_cell_repulsion_strength units="micron/min">30</cell_cell_repulsion_strength>
                     <relative_maximum_adhesion_distance units="dimensionless">1.25</relative_maximum_adhesion_distance>
                     <cell_adhesion_affinities>
                         <cell_adhesion_affinity name="cancer">1.0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="monocytes">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="macrophages">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="NLCs">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="apoptotic">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="dead">0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="monocytes">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="macrophages">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="NLCs">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="apoptotic">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="dead">1.0</cell_adhesion_affinity>
                     </cell_adhesion_affinities>
                     <options>
                         <set_relative_equilibrium_distance enabled="false" units="dimensionless">1.8</set_relative_equilibrium_distance>
@@ -463,37 +493,44 @@
                 </mechanics>
                 <motility>
                     <speed units="micron/min">1e-1</speed>
-                    <persistence_time units="min">1</persistence_time>
-                    <migration_bias units="dimensionless">.05</migration_bias>
+                    <persistence_time units="min">5</persistence_time>
+                    <migration_bias units="dimensionless">.8</migration_bias>
                     <options>
                         <enabled>true</enabled>
                         <use_2D>true</use_2D>
                         <chemotaxis>
                             <enabled>true</enabled>
-                            <substrate>dead substrate</substrate>
+                            <substrate>stress</substrate>
                             <direction>1</direction>
                         </chemotaxis>
                         <advanced_chemotaxis>
                             <enabled>false</enabled>
                             <normalize_each_gradient>false</normalize_each_gradient>
                             <chemotactic_sensitivities>
-                                <chemotactic_sensitivity substrate="anti-apoptotic factor">0.0</chemotactic_sensitivity>
-                                <chemotactic_sensitivity substrate="dead substrate">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="cytokines">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="antiapoptotic">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="stress">0.0</chemotactic_sensitivity>
                             </chemotactic_sensitivities>
                         </advanced_chemotaxis>
                     </options>
                 </motility>
                 <secretion>
-                    <substrate name="anti-apoptotic factor">
+                    <substrate name="cytokines">
+                        <secretion_rate units="1/min">0.0</secretion_rate>
+                        <secretion_target units="substrate density">0.0</secretion_target>
+                        <uptake_rate units="1/min">1</uptake_rate>
+                        <net_export_rate units="total substrate/min">0.0</net_export_rate>
+                    </substrate>
+                    <substrate name="antiapoptotic">
                         <secretion_rate units="1/min">0.0</secretion_rate>
                         <secretion_target units="substrate density">0.0</secretion_target>
                         <uptake_rate units="1/min">0.0</uptake_rate>
                         <net_export_rate units="total substrate/min">0.0</net_export_rate>
                     </substrate>
-                    <substrate name="dead substrate">
+                    <substrate name="stress">
                         <secretion_rate units="1/min">0.0</secretion_rate>
                         <secretion_target units="substrate density">0.0</secretion_target>
-                        <uptake_rate units="1/min">0.0</uptake_rate>
+                        <uptake_rate units="1/min">1</uptake_rate>
                         <net_export_rate units="total substrate/min">0.0</net_export_rate>
                     </substrate>
                 </secretion>
@@ -530,7 +567,7 @@
                         <transformation_rate name="cancer" units="1/min">0</transformation_rate>
                         <transformation_rate name="monocytes" units="1/min">0.0</transformation_rate>
                         <transformation_rate name="macrophages" units="1/min">0</transformation_rate>
-                        <transformation_rate name="NLCs" units="1/min">3001e-15</transformation_rate>
+                        <transformation_rate name="NLCs" units="1/min">3e-16</transformation_rate>
                         <transformation_rate name="apoptotic" units="1/min">0.0</transformation_rate>
                         <transformation_rate name="dead" units="1/min">0.0</transformation_rate>
                     </transformation_rates>
@@ -589,58 +626,65 @@
                     <relative_rupture_volume units="dimensionless">2</relative_rupture_volume>
                 </volume>
                 <mechanics>
-                    <cell_cell_adhesion_strength units="micron/min">4e-1</cell_cell_adhesion_strength>
-                    <cell_cell_repulsion_strength units="micron/min">10</cell_cell_repulsion_strength>
+                    <cell_cell_adhesion_strength units="micron/min">1</cell_cell_adhesion_strength>
+                    <cell_cell_repulsion_strength units="micron/min">30</cell_cell_repulsion_strength>
                     <relative_maximum_adhesion_distance units="dimensionless">1.25</relative_maximum_adhesion_distance>
                     <cell_adhesion_affinities>
-                        <cell_adhesion_affinity name="cancer">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="monocytes">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="macrophages">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="NLCs">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="apoptotic">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="dead">0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="cancer">1</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="monocytes">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="macrophages">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="NLCs">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="apoptotic">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="dead">1.0</cell_adhesion_affinity>
                     </cell_adhesion_affinities>
                     <options>
                         <set_relative_equilibrium_distance enabled="false" units="dimensionless">1.8</set_relative_equilibrium_distance>
                         <set_absolute_equilibrium_distance enabled="false" units="micron">15.12</set_absolute_equilibrium_distance>
                     </options>
                     <attachment_elastic_constant units="1/min">0.01</attachment_elastic_constant>
-                    <attachment_rate units="1/min">0.0</attachment_rate>
-                    <detachment_rate units="1/min">0.0</detachment_rate>
+                    <attachment_rate units="1/min">0.001</attachment_rate>
+                    <detachment_rate units="1/min">0.0001</detachment_rate>
                 </mechanics>
                 <motility>
                     <speed units="micron/min">1e-1</speed>
-                    <persistence_time units="min">1</persistence_time>
-                    <migration_bias units="dimensionless">.05</migration_bias>
+                    <persistence_time units="min">5</persistence_time>
+                    <migration_bias units="dimensionless">8e-1</migration_bias>
                     <options>
                         <enabled>true</enabled>
                         <use_2D>true</use_2D>
                         <chemotaxis>
                             <enabled>true</enabled>
-                            <substrate>dead substrate</substrate>
+                            <substrate>stress</substrate>
                             <direction>1</direction>
                         </chemotaxis>
                         <advanced_chemotaxis>
                             <enabled>false</enabled>
                             <normalize_each_gradient>false</normalize_each_gradient>
                             <chemotactic_sensitivities>
-                                <chemotactic_sensitivity substrate="anti-apoptotic factor">0.0</chemotactic_sensitivity>
-                                <chemotactic_sensitivity substrate="dead substrate">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="cytokines">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="antiapoptotic">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="stress">0.0</chemotactic_sensitivity>
                             </chemotactic_sensitivities>
                         </advanced_chemotaxis>
                     </options>
                 </motility>
                 <secretion>
-                    <substrate name="anti-apoptotic factor">
-                        <secretion_rate units="1/min">1</secretion_rate>
-                        <secretion_target units="substrate density">1</secretion_target>
-                        <uptake_rate units="1/min">0.0</uptake_rate>
-                        <net_export_rate units="total substrate/min">0.0</net_export_rate>
-                    </substrate>
-                    <substrate name="dead substrate">
+                    <substrate name="cytokines">
                         <secretion_rate units="1/min">0.0</secretion_rate>
                         <secretion_target units="substrate density">0.0</secretion_target>
                         <uptake_rate units="1/min">0.0</uptake_rate>
+                        <net_export_rate units="total substrate/min">0.0</net_export_rate>
+                    </substrate>
+                    <substrate name="antiapoptotic">
+                        <secretion_rate units="1/min">1</secretion_rate>
+                        <secretion_target units="substrate density">10</secretion_target>
+                        <uptake_rate units="1/min">0.0</uptake_rate>
+                        <net_export_rate units="total substrate/min">0.0</net_export_rate>
+                    </substrate>
+                    <substrate name="stress">
+                        <secretion_rate units="1/min">0.0</secretion_rate>
+                        <secretion_target units="substrate density">0.0</secretion_target>
+                        <uptake_rate units="1/min">1</uptake_rate>
                         <net_export_rate units="total substrate/min">0.0</net_export_rate>
                     </substrate>
                 </secretion>
@@ -736,16 +780,16 @@
                     <relative_rupture_volume units="dimensionless">2</relative_rupture_volume>
                 </volume>
                 <mechanics>
-                    <cell_cell_adhesion_strength units="micron/min">4e-1</cell_cell_adhesion_strength>
-                    <cell_cell_repulsion_strength units="micron/min">10</cell_cell_repulsion_strength>
+                    <cell_cell_adhesion_strength units="micron/min">0</cell_cell_adhesion_strength>
+                    <cell_cell_repulsion_strength units="micron/min">30</cell_cell_repulsion_strength>
                     <relative_maximum_adhesion_distance units="dimensionless">1.25</relative_maximum_adhesion_distance>
                     <cell_adhesion_affinities>
-                        <cell_adhesion_affinity name="cancer">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="monocytes">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="macrophages">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="NLCs">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="apoptotic">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="dead">0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="cancer">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="monocytes">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="macrophages">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="NLCs">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="apoptotic">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="dead">1.0</cell_adhesion_affinity>
                     </cell_adhesion_affinities>
                     <options>
                         <set_relative_equilibrium_distance enabled="false" units="dimensionless">1.8</set_relative_equilibrium_distance>
@@ -756,37 +800,44 @@
                     <detachment_rate units="1/min">0.0</detachment_rate>
                 </mechanics>
                 <motility>
-                    <speed units="micron/min">5</speed>
-                    <persistence_time units="min">1</persistence_time>
-                    <migration_bias units="dimensionless">0.05</migration_bias>
+                    <speed units="micron/min">3</speed>
+                    <persistence_time units="min">5</persistence_time>
+                    <migration_bias units="dimensionless">5e-1</migration_bias>
                     <options>
                         <enabled>true</enabled>
                         <use_2D>true</use_2D>
                         <chemotaxis>
                             <enabled>false</enabled>
-                            <substrate>anti-apoptotic factor</substrate>
+                            <substrate>cytokines</substrate>
                             <direction>1</direction>
                         </chemotaxis>
                         <advanced_chemotaxis>
                             <enabled>false</enabled>
                             <normalize_each_gradient>false</normalize_each_gradient>
                             <chemotactic_sensitivities>
-                                <chemotactic_sensitivity substrate="anti-apoptotic factor">0.0</chemotactic_sensitivity>
-                                <chemotactic_sensitivity substrate="dead substrate">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="cytokines">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="antiapoptotic">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="stress">0.0</chemotactic_sensitivity>
                             </chemotactic_sensitivities>
                         </advanced_chemotaxis>
                     </options>
                 </motility>
                 <secretion>
-                    <substrate name="anti-apoptotic factor">
+                    <substrate name="cytokines">
+                        <secretion_rate units="1/min">1e-3</secretion_rate>
+                        <secretion_target units="substrate density">10</secretion_target>
+                        <uptake_rate units="1/min">0.0</uptake_rate>
+                        <net_export_rate units="total substrate/min">0.0</net_export_rate>
+                    </substrate>
+                    <substrate name="antiapoptotic">
                         <secretion_rate units="1/min">0.0</secretion_rate>
                         <secretion_target units="substrate density">0.0</secretion_target>
                         <uptake_rate units="1/min">0.0</uptake_rate>
                         <net_export_rate units="total substrate/min">0.0</net_export_rate>
                     </substrate>
-                    <substrate name="dead substrate">
-                        <secretion_rate units="1/min">1</secretion_rate>
-                        <secretion_target units="substrate density">1</secretion_target>
+                    <substrate name="stress">
+                        <secretion_rate units="1/min">1e-1</secretion_rate>
+                        <secretion_target units="substrate density">10</secretion_target>
                         <uptake_rate units="1/min">0.0</uptake_rate>
                         <net_export_rate units="total substrate/min">0.0</net_export_rate>
                     </substrate>
@@ -883,16 +934,16 @@
                     <relative_rupture_volume units="dimensionless">2</relative_rupture_volume>
                 </volume>
                 <mechanics>
-                    <cell_cell_adhesion_strength units="micron/min">4e-1</cell_cell_adhesion_strength>
-                    <cell_cell_repulsion_strength units="micron/min">10</cell_cell_repulsion_strength>
+                    <cell_cell_adhesion_strength units="micron/min">0</cell_cell_adhesion_strength>
+                    <cell_cell_repulsion_strength units="micron/min">30</cell_cell_repulsion_strength>
                     <relative_maximum_adhesion_distance units="dimensionless">1.25</relative_maximum_adhesion_distance>
                     <cell_adhesion_affinities>
-                        <cell_adhesion_affinity name="cancer">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="monocytes">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="macrophages">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="NLCs">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="apoptotic">0</cell_adhesion_affinity>
-                        <cell_adhesion_affinity name="dead">0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="cancer">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="monocytes">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="macrophages">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="NLCs">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="apoptotic">1.0</cell_adhesion_affinity>
+                        <cell_adhesion_affinity name="dead">1.0</cell_adhesion_affinity>
                     </cell_adhesion_affinities>
                     <options>
                         <set_relative_equilibrium_distance enabled="false" units="dimensionless">1.8</set_relative_equilibrium_distance>
@@ -911,29 +962,36 @@
                         <use_2D>true</use_2D>
                         <chemotaxis>
                             <enabled>false</enabled>
-                            <substrate>anti-apoptotic factor</substrate>
+                            <substrate>antiapoptotic</substrate>
                             <direction>1</direction>
                         </chemotaxis>
                         <advanced_chemotaxis>
                             <enabled>false</enabled>
                             <normalize_each_gradient>false</normalize_each_gradient>
                             <chemotactic_sensitivities>
-                                <chemotactic_sensitivity substrate="anti-apoptotic factor">0.0</chemotactic_sensitivity>
-                                <chemotactic_sensitivity substrate="dead substrate">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="cytokines">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="antiapoptotic">0.0</chemotactic_sensitivity>
+                                <chemotactic_sensitivity substrate="stress">0.0</chemotactic_sensitivity>
                             </chemotactic_sensitivities>
                         </advanced_chemotaxis>
                     </options>
                 </motility>
                 <secretion>
-                    <substrate name="anti-apoptotic factor">
+                    <substrate name="cytokines">
+                        <secretion_rate units="1/min">0</secretion_rate>
+                        <secretion_target units="substrate density">0</secretion_target>
+                        <uptake_rate units="1/min">0.0</uptake_rate>
+                        <net_export_rate units="total substrate/min">0.0</net_export_rate>
+                    </substrate>
+                    <substrate name="antiapoptotic">
                         <secretion_rate units="1/min">0.0</secretion_rate>
                         <secretion_target units="substrate density">0</secretion_target>
                         <uptake_rate units="1/min">0.0</uptake_rate>
                         <net_export_rate units="total substrate/min">0.0</net_export_rate>
                     </substrate>
-                    <substrate name="dead substrate">
+                    <substrate name="stress">
                         <secretion_rate units="1/min">1</secretion_rate>
-                        <secretion_target units="substrate density">1</secretion_target>
+                        <secretion_target units="substrate density">10</secretion_target>
                         <uptake_rate units="1/min">0.0</uptake_rate>
                         <net_export_rate units="total substrate/min">0.0</net_export_rate>
                     </substrate>
@@ -984,15 +1042,15 @@
 
     <initial_conditions>
         <cell_positions type="csv" enabled="true">
-            <folder>/home/marcelo.hurtado/Documents/NLC-CLL_HPC_exploration/Physicell_NLCs-CLL/config</folder>
-            <filename>cells_CLL.csv</filename>
+            <folder>config</folder>
+            <filename>cells.csv</filename>
         </cell_positions>
     </initial_conditions>
 
     <cell_rules>
         <rulesets>
             <ruleset protocol="CBHG" version="2.0" format="csv" enabled="true">
-                <folder>./config</folder>
+                <folder>/home/marcelo/Documents/ABM_NLC-CLL/config</folder>
                 <filename>rules0.csv</filename>
             </ruleset>
         </rulesets>
@@ -1002,5 +1060,8 @@
     <user_parameters>
         <random_seed type="int" units="dimensionless" description="">0</random_seed>
         <number_of_cells type="int" units="none" description="initial number of cells (for each cell type)">0</number_of_cells>
+        <cancer_initial type="int" units="" description="">1700</cancer_initial>
+        <apoptotic_initial type="int" units="" description="">80</apoptotic_initial>
+        <monocytes_initial type="int" units="" description="">17</monocytes_initial>
     </user_parameters>
 </PhysiCell_settings>

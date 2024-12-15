@@ -1,7 +1,0 @@
-cancer,damage,increases,transform to apoptotic,31e-5,0.5,4,0
-cancer,anti-apoptotic factor,decreases,transform to apoptotic,1e-18,5e-1,1,0
-macrophages,time,increases,transform to NLCs,3024e-6,20000,4,0
-cancer,contact with NLCs,increases,cell attachment rate,10e-1,1,4,0
-cancer,contact with NLCs,increases,cell-cell adhesion,4.0,1,4,0
-cancer,contact with NLCs,increases,anti-apoptotic factor uptake,3,1,4,0
-cancer,pressure,decreases,migration speed,0.5,1,4,0
