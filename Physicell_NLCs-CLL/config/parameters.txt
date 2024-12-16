@@ -1,0 +1,51 @@
+
+###### cancer cells
+
+cell_cell_repulsion_strength [0 30 60]
+speed [1 2 4]
+secretion_rate_cytokines [0 1e-1 2e-1]
+uptake_rate_antiapoptotic [0 1 2]
+transformation_rate_apoptotic [8e-8 8e-5 16e-5]
+
+###### monocytes
+
+speed [0 1e-1 2e-1]
+uptake_rate_cytokines [0 1 2]
+uptake_rate_stress [0 1 2]
+live_phagocytosis_rate_apoptotic [0 25e-1 4]
+live_phagocytosis_rate_dead [0 25e-1 4]
+transformation_rate_macrophages [0 2e-12 4e-12]
+transformation_rate_NLCs [0 3e-15 6e-15]
+
+###### macrophages
+
+speed [0 1e-1 2e-2]
+uptake_rate_cytokines [0 1 2]
+uptake_rate_stress [0 1 2]
+attack_rate_cancer [0 5e-2 10e-2]
+damage_rate [0 10e-3 20e-3]
+live_phagocytosis_rate_apoptotic [0 92e-1 184e-1]
+live_phagocytosis_rate_dead [0 92e-1 184e-1]
+transformation_rate_NLCs [0 3e-16 6e-16]
+
+###### NLCs
+
+cell_cell_adhesion_strength [0 1 2]
+attachment_rate [0 0.001 0.002]
+detachment_rate [0 0.0001 0.0002]
+speed [0 1e-1 2e-1]
+secretion_rate_antiapoptotic [0 1 2]
+uptake_rate_stress [0 1 2]
+live_phagocytosis_rate_apoptotic [0 4e-1 8e-1]
+live_phagocytosis_rate_dead [0 4e-1 8e-1]
+
+###### apoptotic 
+
+speed [0 2 4]
+secretion_rate_cytokines [0 1e-3 2e-3]
+secretion_rate_stress [0 1e-1 2e-1]
+transformation_rate_dead [0 5e-5 10e-5]
+
+###### dead
+
+secretion_rate_stress [0 1 2]
