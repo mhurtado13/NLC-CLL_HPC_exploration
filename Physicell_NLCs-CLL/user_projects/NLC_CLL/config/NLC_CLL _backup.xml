@@ -387,8 +387,8 @@
                         <phagocytosis_rate name="monocytes" units="1/min">0.0</phagocytosis_rate>
                         <phagocytosis_rate name="macrophages" units="1/min">0.0</phagocytosis_rate>
                         <phagocytosis_rate name="NLCs" units="1/min">0.0</phagocytosis_rate>
-                        <phagocytosis_rate name="apoptotic" units="1/min">25e-4</phagocytosis_rate>
-                        <phagocytosis_rate name="dead" units="1/min">25e-4</phagocytosis_rate>
+                        <phagocytosis_rate name="apoptotic" units="1/min">25e-1</phagocytosis_rate>
+                        <phagocytosis_rate name="dead" units="1/min">25e-1</phagocytosis_rate>
                     </live_phagocytosis_rates>
                     <attack_rates>
                         <attack_rate name="cancer" units="1/min">0.0</attack_rate>
@@ -541,8 +541,8 @@
                         <phagocytosis_rate name="monocytes" units="1/min">0.0</phagocytosis_rate>
                         <phagocytosis_rate name="macrophages" units="1/min">0</phagocytosis_rate>
                         <phagocytosis_rate name="NLCs" units="1/min">0</phagocytosis_rate>
-                        <phagocytosis_rate name="apoptotic" units="1/min">92e-4</phagocytosis_rate>
-                        <phagocytosis_rate name="dead" units="1/min">92e-4</phagocytosis_rate>
+                        <phagocytosis_rate name="apoptotic" units="1/min">92e-1</phagocytosis_rate>
+                        <phagocytosis_rate name="dead" units="1/min">92e-1</phagocytosis_rate>
                     </live_phagocytosis_rates>
                     <attack_rates>
                         <attack_rate name="cancer" units="1/min">5e-2</attack_rate>
@@ -695,8 +695,8 @@
                         <phagocytosis_rate name="monocytes" units="1/min">0.0</phagocytosis_rate>
                         <phagocytosis_rate name="macrophages" units="1/min">0</phagocytosis_rate>
                         <phagocytosis_rate name="NLCs" units="1/min">0</phagocytosis_rate>
-                        <phagocytosis_rate name="apoptotic" units="1/min">4e-4</phagocytosis_rate>
-                        <phagocytosis_rate name="dead" units="1/min">4e-4</phagocytosis_rate>
+                        <phagocytosis_rate name="apoptotic" units="1/min">4e-1</phagocytosis_rate>
+                        <phagocytosis_rate name="dead" units="1/min">4e-1</phagocytosis_rate>
                     </live_phagocytosis_rates>
                     <attack_rates>
                         <attack_rate name="cancer" units="1/min">0</attack_rate>
@@ -1042,8 +1042,8 @@
 
     <initial_conditions>
         <cell_positions type="csv" enabled="true">
-            <folder>/home/marcelo.hurtado/Documents/ABM_NLC-CLL/config</folder>
-            <filename>cells_CLL.csv</filename>
+            <folder>config</folder>
+            <filename>cells.csv</filename>
         </cell_positions>
     </initial_conditions>
 
