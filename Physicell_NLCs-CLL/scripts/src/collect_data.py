@@ -21,13 +21,15 @@ def collect(dir_output, config_file, node):
 
     #Initial CLL cells
     initial = timesteps[0].get_cell_df(states=1)
-    CLL_initial = len(initial[(initial['cell_type']=="cancer")])
+    alive_initial = len(initial[(initial['cell_type']=="cancer")])
     apoptotic_initial = len(initial[(initial['cell_type']=="apoptotic")])
     dead_initial = len(initial[(initial['cell_type']=="dead")])
+    CLL_initial = alive_initial + apoptotic_initial + dead_initial
 
-    alive = [CLL_initial]
+    alive = [alive_initial]
     dead = [dead_initial]
     apoptotic = [apoptotic_initial]
+
     for i in range(1, len(positions)):
         step = timesteps[positions[i]].get_cell_df(states=1)
         number_alive = len(step[(step['cell_type']=='cancer')&(step['dead']==False)]) #step['dead'] is only a formality cause all cells are considered 'alive', 'dead' is another celltype for this model
@@ -59,11 +61,11 @@ def collect(dir_output, config_file, node):
 
     viability = pd.Series(viability, name = "CLL viability")
 
-    #concentration at time t =  CLL alive at time t / (CLL initial)
+    #concentration at time t =  CLL at time t / (CLL initial)
     concentration = []
     for i in range(len(CLL_alive)):
         try:
-            number = (CLL_alive[i]/CLL_initial)*100
+            number = ((CLL_alive[i] + CLL_apoptotic[i] + CLL_dead[i])/CLL_initial)*100
             concentration.append(number)
         except Exception as e:
             destination_file = os.path.join(error_folder, os.path.basename(config_file))
