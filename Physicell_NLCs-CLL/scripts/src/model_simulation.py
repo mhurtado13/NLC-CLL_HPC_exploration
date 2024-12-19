@@ -35,79 +35,66 @@ def simulate_model(input_file_path, replicates, node, process, *args):
 
     
     ### All parameters
-    param_behaviors = {'cancer':{'uptake_rate': 0, 'secretion_rate': 1, 'speed': 2, 'transformation_rate': 3, 'relative_maximum_adhesion_distance': 4, 'cell_adhesion_affinity': 5},
-                    'monocytes':{'speed': 6, 'transformation_rate': 7, 'phagocytosis_rate': 8}, 
-                    'macrophages':{'speed': 9, 'phagocytosis_rate': 10, 'attack_rate': 11, 'relative_maximum_adhesion_distance': 12, 'cell_adhesion_affinity': 13},
-                    'NLCs': {'speed': 14, 'phagocytosis_rate': 15},
-                    'apoptotic':{'secretion_rate':16, 'speed':17, 'transformation_rate': 18},
-                    'dead':{'secretion_rate': 19}}
+    param_behaviors = {
+        'cancer':{'cell_cell_repulsion_strength': 0, 
+                  'speed': 1, 
+                  'secretion_rate': {'column': 2, 'substrate': 'cytokines'}, 
+                  'uptake_rate': {'column': 3, 'substrate': 'antiapoptotic'},
+                  'transformation_rate': {'column':4, 'cell_type': 'apoptotic'}},
 
-    '''
-    param_behaviors = {'cancer':{'secretion_rate': 0, 'speed': 1, 'transformation_rate': 2},
-                    'monocytes':{'speed': 3, 'transformation_rate': 4}, 
-                    'macrophages':{'relative_maximum_adhesion_distance': 5},
-                    'NLCs': {'speed': 6},
-                    'apoptotic':{'speed':7}}
-    '''
+        'monocytes':{'speed': 5, 
+                     'uptake_rate': {'column': 6, 'substrate': 'cytokines'},
+                     'uptake_rate': {'column': 7, 'substrate': 'stress'},
+                     'phagocytosis_rate': {'column':8, 'cell_type': 'apoptotic'},
+                     'phagocytosis_rate': {'column':9, 'cell_type': 'dead'},
+                     'transformation_rate': {'column':10, 'cell_type': 'macrophages'},
+                     'transformation_rate': {'column':11, 'cell_type': 'NLCs'}},
+
+        'macrophages':{'speed': 12, 
+                       'uptake_rate': {'column': 13, 'substrate': 'cytokines'},
+                       'uptake_rate': {'column': 14, 'substrate': 'stress'},
+                       'attack_rate': {'column': 15, 'substrate': 'cancer'},
+                       'damage_rate': 16, 
+                       'phagocytosis_rate': {'column': 17, 'cell_type': 'apoptotic'},
+                       'phagocytosis_rate': {'column': 18, 'cell_type': 'dead'},
+                       'transformation_rate': {'column': 19, 'cell_type': 'NLCs'}},
+
+        'NLCs': {'cell_cell_adhesion_strength': 20, 
+                 'attachment_rate': 21, 
+                 'detachment_rate': 22,
+                 'speed': 23, 
+                 'secretion_rate': {'column': 24, 'substrate': 'antiapoptotic'},
+                 'uptake_rate': {'column': 25, 'substrate': 'stress'},
+                 'phagocytosis_rate': {'column': 26, 'cell_type': 'apoptotic'},
+                 'phagocytosis_rate': {'column': 27, 'cell_type': 'dead'}},
+
+        'apoptotic':{'speed': 28, 
+                     'secretion_rate': {'column': 29, 'substrate': 'cytokines'},
+                     'secretion_rate': {'column': 30, 'substrate': 'stress'},
+                     'transformation_rate': {'column': 31, 'cell_type': 'dead'}},
+
+        'dead':{'secretion_rate': {'column': 32, 'substrate': 'stress'}}
+    }
                         
-    for i, celltype in enumerate(param_behaviors.keys()): #i = number of keys name and celltype = cell type
-        for param, column in param_behaviors[celltype].items(): #param = parameter name and column = column number
-            if celltype == 'cancer' and param == 'uptake_rate':
-                param_value = values[column] #Extract each value [i, col_index]
-                param_element = root.find(f".//*[@name='{celltype}']//*[@name='anti-apoptotic factor']//{param}") #Find the param name in XML file
-                param_element.text = str(param_value)
-            elif celltype == 'cancer' and param == 'secretion_rate':
-                param_value = values[column] #Extract each value [i, col_index]
-                param_element = root.find(f".//*[@name='{celltype}']//*[@name='cancer-signal']//{param}") #Find the param name in XML file
-                param_element.text = str(param_value)
-            elif celltype == 'cancer' and param == 'transformation_rate':
-                param_value = values[column] #Extract each value [i, col_index]
-                param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='apoptotic']") #Find the param name in XML file
-                param_element.text = str(param_value)
-            elif celltype == 'cancer' and param == 'cell_adhesion_affinity':
-                param_value = values[column] #Extract each value [i, col_index]
-                param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='NLCs']") #Find the param name in XML file
-                param_element.text = str(param_value)
-            elif celltype == 'monocytes' and param == 'transformation_rate':
-                param_value = values[column] #Extract each value [i, col_index]
-                param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='macrophages']") #Find the param name in XML file
-                param_element.text = str(param_value)
-            elif celltype == 'monocytes' and param == 'phagocytosis_rate':
-                param_value = values[column] #Extract each value [i, col_index]
-                param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='apoptotic']") #Find the param name in XML file
-                param_element.text = str(param_value)
-            elif celltype == 'macrophages' and param == 'phagocytosis_rate':
-                param_value = values[column] #Extract each value [i, col_index]
-                param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='apoptotic']") #Find the param name in XML file
-                param_element.text = str(param_value)
-            elif celltype == 'macrophages' and param == 'attack_rate':
-                param_value = values[column] #Extract each value [i, col_index]
-                param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='cancer']") #Find the param name in XML file
-                param_element.text = str(param_value)
-            elif celltype == 'macrophages' and param == 'cell_adhesion_affinity':
-                param_value = values[column] #Extract each value [i, col_index]
-                param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='cancer']") #Find the param name in XML file
-                param_element.text = str(param_value)                    
-            elif celltype == 'NLCs' and param == 'phagocytosis_rate':
-                param_value = values[column] #Extract each value [i, col_index]
-                param_element = root.find(f".//*[@name='{celltype}']//*[@name='apoptotic']") #Find the param name in XML file
-                param_element.text = str(param_value)
-            elif celltype == 'apoptotic' and param == 'secretion_rate':
-                param_value = values[column]
-                param_element = root.find(f".//*[@name='{celltype}']//substrate[@name='dead substrate']/{param}")
-                param_element.text = str(param_value)
-            elif celltype == 'apoptotic' and param == 'transformation_rate':
-                param_value = values[column] #Extract each value [i, col_index]
-                param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='dead']") #Find the param name in XML file
-                param_element.text = str(param_value)
-            elif celltype == 'dead' and param == 'secretion_rate':
-                param_value = values[column]
-                param_element = root.find(f".//*[@name='{celltype}']//substrate[@name='dead substrate']/{param}")
-                param_element.text = str(param_value)    
+    for _, celltype in enumerate(param_behaviors.keys()): #i = number of keys name and celltype = cell type
+        for param, column_info in param_behaviors[celltype].items(): #param = parameter name and column = column number
+            if isinstance(column_info, dict):
+                column = column_info['column']
+                extra = column_info.get('extra', None)
             else:
-                param_value = values[column] #Extract each value [i, col_index]
+                column = column_info
+                extra = None
+
+            param_value = values[column] #Extract each value [i, col_index]
+
+            if param in ['uptake_rate', 'secretion_rate'] and extra:
+                param_element = root.find(f".//*[@name='{celltype}']//*[@name='{extra}']//{param}") #Find the param name in XML file
+            elif extra:
+                param_element = root.find(f".//*[@name='{celltype}']//{param}/[@name='{extra}']") #Find the param name in XML file
+            else:
                 param_element = root.find(f".//*[@name='{celltype}']//{param}") #Find the param name in XML file
-                param_element.text = str(param_value)
+
+            param_element.text = str(param_value)
 
     # Define the command to call your C++ software with the updated XML as input
     command = ["./project", xml_file]

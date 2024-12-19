@@ -40,9 +40,9 @@ for i in range(1, len(results)):
     concentration = pd.concat([concentration, conc], axis=1, ignore_index=True) #concatenating in the same order as explore_values
     param_error.extend(err)
 
-viability_name = f'data_output/Sensitivity_analysis/results/viability_{n_node}.csv'
-concentration_name = f'data_output/Sensitivity_analysis/results/concentration_{n_node}.csv'
-errors_name = f'data_output/Sensitivity_analysis/results/Physicell_errors_{n_node}.csv'
+viability_name = f'data_output/Parameter_exploration/results/viability_{n_node}.csv'
+concentration_name = f'data_output/Parameter_exploration/results/concentration_{n_node}.csv'
+errors_name = f'data_output/Parameter_exploration/results/Physicell_errors_{n_node}.csv'
 
 viability.to_csv(viability_name, index=False, header=True)
 concentration.to_csv(concentration_name, index=False, header=True)

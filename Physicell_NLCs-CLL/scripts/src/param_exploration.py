@@ -2,18 +2,27 @@ import pandas as pd
 import sys
 import numpy as np
 
-#Simulations = 20 variables x 9 values x 10 replicates = 1800 simulations
+#Simulations = 33 variables x 8 values x 5 replicates = 1320 simulations
 
 num_nodes = int(sys.argv[1])
 
-input = {'uptake_rate_cancer': 1.0, 'secretion_rate_cancer':1.0, 'speed_cancer': 1.0, 'transformation_rate_cancer': 3e-5, 'relative_maximum_adhesion_distance_cancer': 0, 'cell_adhesion_affinity_cancer': 1,
-         'speed_monocytes': 1.0, 'transformation_rate_monocytes': 95e-6, 'phagocytosis_rate_monocytes':25e-2, 'speed_macrophages': 1.0, 'phagocytosis_rate_macrophages':92e-2, 
-         'attack_rate_macrophages': 5e-2, 'relative_maximum_adhesion_distance_macrophages': 0, 'cell_adhesion_affinity_macrophages': 1, 'speed_NLCs': 1.0, 'phagocytosis_rate_NLCs':4e-2, 
-         'secretion_rate_apoptotic': 1.0, 'speed_apoptotic': 1.0, 'transformation_rate_apoptotic': 5e-05, 'secretion_rate_dead': 1.0}
+input = {'cell_cell_repulsion_strength_cancer': 30, 'speed_cancer': 2,
+         'secretion_rate_cytokines_cancer': 1e-1, 'uptake_rate_antiapoptotic_cancer': 1, 
+         'transformation_rate_apoptotic_cancer': 8e-5, 'speed_monocytes': 1e-1,
+         'uptake_rate_cytokines_monocytes': 1, 'uptake_rate_stress_monocytes': 1,
+         'phagocytosis_rate_apoptotic_monocytes': 25e-4, 'phagocytosis_rate_dead_monocytes': 25e-4,
+         'transformation_rate_macrophages_monocytes': 2e-12, 'transformation_rate_NLCs_monocytes': 3e-15,
+         'speed_macrophages': 1e-1, 'uptake_rate_cytokines_macrophages': 1, 'uptake_rate_stress_macrophages': 1,
+         'attack_rate_cancer_macrophages': 5e-2, 'damage_rate_macrophages': 10e-3, 'phagocytosis_rate_apoptotic_macrophages': 92e-4,
+         'phagocytosis_rate_dead_macrophages': 92e-4, 'transformation_rate_NLCs_macrophages': 3e-16,
+         'cell_cell_adhesion_strength_NLCs': 1, 'attachment_rate_NLCs': 0.001, 'detachment_rate_NLCs': 0.0001, "speed_NLCs": 1e-1,
+         'secretion_rate_antiapoptotic_NLCs': 1, 'uptake_rate_stress_NLCs': 1, 'phagocytosis_rate_apoptotic_NLCs': 4e-4,
+         'phagocytosis_rate_dead_NLCs': 4e-4, 'speed_apoptotic': 2, 'secretion_rate_cytokines_apoptotic': 1e-3,
+         'secretion_rate_stress_apoptotic': 1e-1, 'transformation_rate_dead_apoptotic': 5e-5, 'secretion_rate_stress_dead': 1}
 
 default_values = list(input.values())
 
-explore_values = list([1e-6, 1e-4, 1e-3, 1e-2, 1e-1, 2, 3, 4, 5])
+explore_values = list([0, 1e-8, 1e-6, 1e-4, 1e-2, 2, 4, 6])
 
 def reset_values(data, values_def):        
     for i, key in enumerate(data.keys()):
