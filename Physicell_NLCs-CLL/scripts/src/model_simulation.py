@@ -33,9 +33,8 @@ def simulate_model(input_file_path, replicates, node, process, *args):
 
     xml_file = config_node + "/configuration_file_" + str(process) + ".xml"
 
-    
     ### All parameters
-    param_behaviors = {
+    ''' param_behaviors = {
         'cancer':{'cell_cell_repulsion_strength': 0, 
                   'speed': 1, 
                   'secretion_rate': {'column': 2, 'substrate': 'cytokines'}, 
@@ -74,6 +73,29 @@ def simulate_model(input_file_path, replicates, node, process, *args):
                      'transformation_rate': {'column': 31, 'cell_type': 'dead'}},
 
         'dead':{'secretion_rate': {'column': 32, 'substrate': 'stress'}}
+    } '''
+
+    ### Parameters selected after Exploration
+
+    param_behaviors = {
+        'cancer':{'cell_cell_repulsion_strength': 0, 
+                  'speed': 1},
+
+        'monocytes':{'phagocytosis_rate': {'column':2, 'cell_type': 'dead'},
+                     'transformation_rate': {'column':3, 'cell_type': 'NLCs'}},
+
+        'macrophages':{'uptake_rate': {'column': 4, 'substrate': 'cytokines'},
+                       'attack_rate': {'column': 5, 'substrate': 'cancer'},
+                       'phagocytosis_rate': {'column': 6, 'cell_type': 'apoptotic'},
+                       'phagocytosis_rate': {'column': 7, 'cell_type': 'dead'},
+                       'transformation_rate': {'column': 8, 'cell_type': 'NLCs'}},
+
+        'NLCs': {'cell_cell_adhesion_strength': 9, 
+                 'attachment_rate': 10, 
+                 'phagocytosis_rate': {'column': 11, 'cell_type': 'dead'}},
+
+        'apoptotic':{'speed': 12, 
+                     'transformation_rate': {'column': 13, 'cell_type': 'dead'}}
     }
                         
     for _, celltype in enumerate(param_behaviors.keys()): #i = number of keys name and celltype = cell type
