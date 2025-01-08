@@ -1,7 +1,7 @@
 
 ###### cancer cells
 
-cell_cell_repulsion_strength [0 30 60]
+cell_cell_repulsion_strength [10 30 60]
 speed [1 2 4]
 secretion_rate_cytokines [0 1e-1 2e-1]
 uptake_rate_antiapoptotic [0 1 2]
@@ -41,7 +41,7 @@ live_phagocytosis_rate_dead [0 4e-4 4e-2]
 
 ###### apoptotic 
 
-speed [0 2 4]
+speed [0 2 3]
 secretion_rate_cytokines [0 1e-3 2e-3]
 secretion_rate_stress [0 1e-1 2e-1]
 transformation_rate_dead [0 5e-5 10e-5]
