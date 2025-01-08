@@ -19,7 +19,7 @@ NUM_REPLICATES=5
 #Specify which node to use
 NODE=1
 
-python scripts/src/run_model.py $FILE $NUM_TASKS $NUM_REPLICATES $NODE
+python -u scripts/src/run_model.py $FILE $NUM_TASKS $NUM_REPLICATES $NODE #flag -u ensures printing log messages for real-time debugging
 
 #Before running this, run in the console: python scripts/param_exploration.py $NUM_NODES
 

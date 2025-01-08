@@ -2,7 +2,7 @@
 #SBATCH --job-name=NLC-CLL-Sensitivity-node1
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=128
+#SBATCH --cpus-per-task=32
 #SBATCH --mem=256G
 #SBATCH --partition=unlimitq
 #SBATCH --mail-type=FAIL,BEGIN,END
@@ -19,10 +19,10 @@ NUM_REPLICATES=5
 #Specify which node to use
 NODE=1
 
-python -u scripts/run_model.py $FILE $NUM_TASKS $NUM_REPLICATES $NODE
+python -u scripts/src/run_model.py $FILE $NUM_TASKS $NUM_REPLICATES $NODE #flag -u ensures printing log messages for real-time debugging
 
 #Before running this, run in the console: python param_sensitivity.py $NUM_SAMPLES $NUM_NODES
-#Remember for Sobol: N*(2D + 2)  simulations N = 512 
+#Remember for Sobol: N*(2D + 2)  simulations N = 128 
 
 
 
