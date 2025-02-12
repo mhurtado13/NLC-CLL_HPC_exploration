@@ -14,13 +14,16 @@
 NUM_TASKS=2
 
 # Define the number replicates for bootstrapping 
-NUM_REPLICATES=3
+NUM_REPLICATES=2
 
-# Define the population size for genetic algorithm
+# Define the population size for genetic algorithm (e.g. 500)
 POP_SIZE=500
 
-# Define the number of generations for genetic algorithm
+# Define the number of generations for genetic algorithm (e.g. 100)
 NUM_GENERATION=100
 
+#Specify which node to use
+NODE=1
+
 # Calibration of Physicell model using NSGA-II
-python scripts/param_calibration.py $NUM_TASKS $NUM_REPLICATES $POP_SIZE $NUM_GENERATION
+python -u scripts/src/param_calibration.py $NUM_TASKS $NUM_REPLICATES $POP_SIZE $NUM_GENERATION $NODE

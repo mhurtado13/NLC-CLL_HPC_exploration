@@ -77,7 +77,7 @@ def simulate_model(input_file_path, replicates, node, process, *args):
 
     ### Parameters selected after Exploration
 
-    param_behaviors = {
+    '''param_behaviors = {
         'cancer':{'cell_cell_repulsion_strength': 0, 
                   'speed': 1},
 
@@ -96,6 +96,24 @@ def simulate_model(input_file_path, replicates, node, process, *args):
 
         'apoptotic':{'speed': 12, 
                      'transformation_rate': {'column': 13, 'cell_type': 'dead'}}
+    }'''
+
+    ### Parameters selected after SA
+
+    param_behaviors = {
+        'cancer':{'cell_cell_repulsion_strength': 0, 
+                  'speed': 1},
+
+        'monocytes':{'phagocytosis_rate': {'column':2, 'cell_type': 'dead'}},
+
+        'macrophages':{'uptake_rate': {'column': 3, 'substrate': 'cytokines'},
+                       'attack_rate': {'column': 4, 'substrate': 'cancer'}},
+
+        'NLCs': {'cell_cell_adhesion_strength': 5, 
+                 'phagocytosis_rate': {'column': 6, 'cell_type': 'dead'}},
+
+        'apoptotic':{'speed': 7, 
+                     'transformation_rate': {'column': 8, 'cell_type': 'dead'}}
     }
                         
     for _, celltype in enumerate(param_behaviors.keys()): #i = number of keys name and celltype = cell type
