@@ -2,22 +2,22 @@
 #SBATCH --job-name=NLC-CLL-calibration
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=120
-#SBATCH --mem=128G
-#SBATCH --partition=unlimitq
+#SBATCH --cpus-per-task=32
+#SBATCH --mem=256G
+#SBATCH --partition=long
 #SBATCH --mail-type=FAIL,BEGIN,END
 #SBATCH --mail-user=marcelo.hurtado@inserm.fr
-#SBATCH -o /home/mhurtado/work/NLC-CLL_HPC_exploration/logs/Calibration/%x.o
-#SBATCH -e /home/mhurtado/work/NLC-CLL_HPC_exploration/logs/Calibration/%x.e
+#SBATCH -o ~/NLC-CLL_HPC_exploration/Physicell_NLCs-CLL/logs/Calibration/%x.o
+#SBATCH -e ~/NLC-CLL_HPC_exploration/Physicell_NLCs-CLL/logs/Calibration/%x.e
 
 # Define the number of tasks running in parallel
-NUM_TASKS=2
+NUM_TASKS=32
 
 # Define the number replicates for bootstrapping 
-NUM_REPLICATES=2
+NUM_REPLICATES=1
 
 # Define the population size for genetic algorithm (e.g. 500)
-POP_SIZE=500
+POP_SIZE=200
 
 # Define the number of generations for genetic algorithm (e.g. 100)
 NUM_GENERATION=100
