@@ -44,10 +44,10 @@ class calibrationProb(Problem):
         for i in range(pop_size):
             viability, concentration,_ = results[i]
             #RMSE of viability
-            rmse_viability = np.sqrt(np.sum((viability - viability_exp)**2) / 10) #10 is the total of time points
+            rmse_viability = np.sqrt(np.sum((viability.to_numpy().flatten()  - viability_exp)**2) / 10) #10 is the total of time points
             obj1.append(rmse_viability)
             #RMSE of concentration
-            rmse_concentration = np.sqrt(np.sum((concentration - concentration_exp)**2) / 10) #10 is the total of time points
+            rmse_concentration = np.sqrt(np.sum((concentration.to_numpy().flatten()  - concentration_exp)**2) / 10) #10 is the total of time points
             obj2.append(rmse_concentration)
 
         #Stacking objectives to "F" 

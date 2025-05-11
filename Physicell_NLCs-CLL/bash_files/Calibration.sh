@@ -7,14 +7,14 @@
 #SBATCH --partition=long
 #SBATCH --mail-type=FAIL,BEGIN,END
 #SBATCH --mail-user=marcelo.hurtado@inserm.fr
-#SBATCH -o ~/NLC-CLL_HPC_exploration/Physicell_NLCs-CLL/logs/Calibration/%x.o
-#SBATCH -e ~/NLC-CLL_HPC_exploration/Physicell_NLCs-CLL/logs/Calibration/%x.e
+#SBATCH -o logs/Calibration/%x.o
+#SBATCH -e logs/Calibration/%x.e
 
 # Define the number of tasks running in parallel
 NUM_TASKS=32
 
 # Define the number replicates for bootstrapping 
-NUM_REPLICATES=1
+NUM_REPLICATES=3
 
 # Define the population size for genetic algorithm (e.g. 500)
 POP_SIZE=200

@@ -48,9 +48,12 @@ def collect(dir_output, config_file, node):
     for i in range(len(CLL_alive)):
         try:
             # Calculate the number and append to viability list
+            print(f"CLL_alive: {CLL_alive[i]}, CLL_apoptotic: {CLL_apoptotic[i]}, CLL_dead: {CLL_dead[i]}")
             number = (CLL_alive[i] / (CLL_alive[i] + CLL_apoptotic[i] + CLL_dead[i])) * 100
             viability.append(number)
         except Exception as e:
+            print(f"Error at index {i}:")
+            print(f"CLL_alive: {CLL_alive[i]}, CLL_apoptotic: {CLL_apoptotic[i]}, CLL_dead: {CLL_dead[i]}")
             destination_file = os.path.join(error_folder, os.path.basename(config_file))
             shutil.copy(config_file, destination_file)
             number = 0  # Continue

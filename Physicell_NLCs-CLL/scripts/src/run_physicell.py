@@ -34,15 +34,19 @@ print(pareto_params_viability)
 print("Concentration:")
 print(pareto_params_concentration)
 
-params = ("config/NLC_CLL.xml", 5, 1, 1) + tuple(pareto_params_viability)
+parameters = parameter_values[4]
+print("Using parameters:")
+print(parameters)
+
+params = ("config/NLC_CLL.xml", 3, 1, 1) + tuple(parameters)
 results = simulate_model(*params)
 viability, concentration,_ = results
 
-viability_name = f'data_output/Calibration/viability_calibrated.csv'
-concentration_name = f'data_output/Calibration/concentration_calibrated.csv'
+#viability_name = f'data_output/Calibration/viability_calibrated.csv'
+#concentration_name = f'data_output/Calibration/concentration_calibrated.csv'
 
-viability.to_csv(viability_name, index=False, header=True)
-concentration.to_csv(concentration_name, index=False, header=True)
+#viability.to_csv(viability_name, index=False, header=True)
+#concentration.to_csv(concentration_name, index=False, header=True)
 
 print("Viability:")
 print(viability)

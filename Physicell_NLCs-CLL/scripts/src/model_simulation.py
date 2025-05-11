@@ -120,7 +120,7 @@ def simulate_model(input_file_path, replicates, node, process, *args):
         for param, column_info in param_behaviors[celltype].items(): #param = parameter name and column = column number
             if isinstance(column_info, dict):
                 column = column_info['column']
-                extra = column_info.get('extra', None)
+                extra = column_info.get('cell_type') or column_info.get('substrate')
             else:
                 column = column_info
                 extra = None
